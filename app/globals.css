@@ -74,8 +74,8 @@ body::before {
   inset: -50%;
   z-index: -2;
   background-image:
-    linear-gradient(rgb(139 92 246 / 7%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(139 92 246 / 7%) 1px, transparent 1px);
+    linear-gradient(rgb(139 92 246 / 10%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(139 92 246 / 10%) 1px, transparent 1px);
   background-size: 46px 46px;
   transform: perspective(600px) rotateX(58deg);
   transform-origin: 50% 0;
@@ -90,10 +90,11 @@ body::after {
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(900px 520px at 12% -12%, rgb(58 12 163 / 55%), transparent 62%),
-    radial-gradient(820px 520px at 88% -4%, rgb(139 92 246 / 26%), transparent 60%),
-    radial-gradient(1100px 760px at 50% 112%, rgb(58 12 163 / 42%), transparent 64%),
-    linear-gradient(180deg, transparent 0%, var(--bg-deep) 88%);
+    radial-gradient(820px 560px at 8% -8%, rgb(58 12 163 / 90%), transparent 58%),
+    radial-gradient(760px 520px at 96% 4%, rgb(109 40 217 / 62%), transparent 58%),
+    radial-gradient(1100px 780px at 50% 114%, rgb(58 12 163 / 72%), transparent 62%),
+    radial-gradient(600px 400px at 78% 52%, rgb(139 92 246 / 20%), transparent 62%),
+    linear-gradient(180deg, transparent 0%, rgb(0 0 0 / 55%) 62%, var(--bg-deep) 94%);
   pointer-events: none;
 }
 
@@ -265,7 +266,7 @@ h3 {
 }
 
 .panel {
-  background: linear-gradient(180deg, rgb(11 14 29 / 92%), rgb(7 9 25 / 92%));
+  background: linear-gradient(180deg, rgb(16 10 32 / 82%), rgb(6 4 14 / 88%));
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 22px;
@@ -745,7 +746,7 @@ table.log tr:hover td {
 }
 
 .bubble.assistant {
-  background: linear-gradient(180deg, rgb(11 14 29 / 94%), rgb(7 9 25 / 94%));
+  background: linear-gradient(180deg, rgb(18 11 36 / 86%), rgb(7 4 16 / 90%));
   border: 1px solid var(--line);
   margin-right: auto;
   max-width: 94%;
