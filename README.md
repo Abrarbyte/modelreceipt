@@ -46,8 +46,21 @@ Nobody hands the customer a signed, privacy-preserving, offline-verifiable recei
 
 Four entry points, one evidence layer.
 
-### Hosted playground — `/`
-Type a prompt, get an answer and its sealed receipt, already verified, with the assurance level and the seven CooL verification domains side by side.
+### Chat gateway — `/`
+A conversation interface. Every reply carries its own receipt inline — verdict, assurance level, model, leaf index — and expands to show the full sealing pipeline replayed with the values it actually produced. Multi-turn exchanges share one `execution_id`, so a conversation is a linked chain of evidence rather than unrelated records.
+
+### Who asked what — `/audit`
+The question any organisation running this at scale will ask: *"show me everything this user asked."* It has to work, and it must not turn the database into the disclosure risk the receipts were designed to avoid. So three things are kept deliberately apart:
+
+| Question | Where the answer lives |
+|---|---|
+| Which records belong to this user? | An index on `subject_ref` — `HMAC-SHA256(server_secret, identifier)` |
+| Is each record genuine? | The receipt, verifiable by anyone |
+| What was actually said? | Nowhere. Only salted hashes — until the user discloses. |
+
+The identifier is **never written to the database**; only the keyed reference is. A plain hash of an email would fall to a wordlist in seconds, so the reference is keyed with a server secret that is not in the table. The identifier is *also* committed inside the signed record as salted metadata, which is what makes the binding evidentiary: in a dispute the operator can prove whose request it was by disclosing that one value and its salt, without it having been legible to anyone in the meantime.
+
+A breach of this database leaks no prompts, no answers, and no identifiers — only opaque references.
 
 ### Drop-in proxy — `/v1/chat/completions`
 The adoption path that matters. Change **one line** in your own application, keep your own provider and your own key:

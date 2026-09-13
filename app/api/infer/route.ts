@@ -11,6 +11,7 @@ import { evidenceRecord, seal } from "@/lib/cool";
 import { answer } from "@/lib/model";
 import { ensureSchema, sql } from "@/lib/db";
 import { isDurable } from "@/lib/durable-log";
+import { normaliseSession, subjectRef } from "@/lib/identity";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,10 +19,22 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   let prompt: string;
   let variant: string;
+  let subject: string;
+  let sessionId: string | null;
+  let executionId: string | undefined;
   try {
-    const body = (await request.json()) as { prompt?: unknown; variant?: unknown };
+    const body = (await request.json()) as {
+      prompt?: unknown;
+      variant?: unknown;
+      subject?: unknown;
+      sessionId?: unknown;
+      executionId?: unknown;
+    };
     prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
     variant = typeof body.variant === "string" ? body.variant : "v1";
+    subject = typeof body.subject === "string" ? body.subject.trim() : "";
+    sessionId = normaliseSession(body.sessionId);
+    executionId = typeof body.executionId === "string" ? body.executionId : undefined;
     if (!prompt) {
       return NextResponse.json({ error: "prompt is required" }, { status: 400 });
     }
@@ -40,6 +53,9 @@ export async function POST(request: Request) {
   //    Nothing downstream of this call has the text - including our database.
   const { receipt, treeSize, leafIndex } = await seal({
     type: "model.execution",
+    // One execution id threads a whole conversation together, so a multi-turn
+    // exchange is a retrievable chain rather than unrelated records.
+    executionId,
     metadata: {
       model: result.model,
       provider: result.provider,
@@ -47,6 +63,11 @@ export async function POST(request: Request) {
       latency_ms: result.latencyMs,
       simulated_model: result.simulated,
       region: process.env.VERCEL_REGION ?? "local",
+      // Committed, not stored: the SDK salts and hashes metadata, so the user
+      // identifier becomes evidentiary without ever being legible in the
+      // receipt. Disclosing it later proves whose request this was.
+      subject: subject || null,
+      session: sessionId,
     },
     payloads: { input: prompt, output: result.text },
     softwareName: "modelreceipt-gateway",
@@ -56,13 +77,16 @@ export async function POST(request: Request) {
   // 3. Store the receipt for the explorer. Note what is stored: the receipt
   //    only. The prompt and completion are returned to the caller and then
   //    forgotten by this service.
+  const record = evidenceRecord(receipt);
   const db = sql();
   if (db) {
     try {
       await ensureSchema();
-      const record = evidenceRecord(receipt);
       await db`
-        INSERT INTO receipts (record_id, leaf_index, event_type, model, provider, issued_at, receipt)
+        INSERT INTO receipts (
+          record_id, leaf_index, event_type, model, provider, issued_at, receipt,
+          subject_ref, session_id
+        )
         VALUES (
           ${record.record_id},
           ${leafIndex},
@@ -70,7 +94,9 @@ export async function POST(request: Request) {
           ${result.model},
           ${result.provider},
           ${record.time.issued_at},
-          ${JSON.stringify(receipt)}::jsonb
+          ${JSON.stringify(receipt)}::jsonb,
+          ${subject ? subjectRef(subject) : null},
+          ${sessionId}
         )
         ON CONFLICT (record_id) DO NOTHING
       `;
@@ -83,6 +109,7 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({
+    executionId: record.event.execution_id,
     answer: result.text,
     model: result.model,
     provider: result.provider,

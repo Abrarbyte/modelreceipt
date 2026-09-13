@@ -87,6 +87,19 @@ export async function ensureSchema(): Promise<void> {
         )
       `;
       await db`CREATE INDEX IF NOT EXISTS receipts_issued_at_idx ON receipts (issued_at DESC)`;
+
+      // Identity columns, added separately so an existing deployment upgrades
+      // in place rather than needing the table dropped.
+      //
+      // What these hold is the important part. `subject_ref` is a keyed hash of
+      // the end user's identifier, never the identifier itself: the operator
+      // can look up everything one user asked, and anyone else holding the row
+      // learns nothing about who it was. `session_id` groups a conversation so
+      // a multi-turn exchange is one retrievable thread.
+      await db`ALTER TABLE receipts ADD COLUMN IF NOT EXISTS subject_ref TEXT`;
+      await db`ALTER TABLE receipts ADD COLUMN IF NOT EXISTS session_id TEXT`;
+      await db`CREATE INDEX IF NOT EXISTS receipts_subject_idx ON receipts (subject_ref, issued_at DESC)`;
+      await db`CREATE INDEX IF NOT EXISTS receipts_session_idx ON receipts (session_id, issued_at DESC)`;
     })().catch((error) => {
       // Let the next request retry rather than caching a failure forever.
       schemaReady = null;

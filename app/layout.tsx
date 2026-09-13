@@ -21,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/verify">Verify</Link>
             <Link href="/log">Log</Link>
             <Link href="/compliance">Compliance</Link>
+            <Link href="/audit">Audit</Link>
             <Link href="/how-it-works">How it works</Link>
             <a
               href="https://github.com/Northwind-Cipher/cool-sdk"

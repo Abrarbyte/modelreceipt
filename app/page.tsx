@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { assess, type Assurance } from "@/lib/assurance";
 import { AssuranceLadder, VerdictPanel, type VerdictShape } from "@/components/Verdict";
-import { Pipeline } from "@/components/Pipeline";
+import { Pipeline, type PipelineData } from "@/components/Pipeline";
 
 interface InferResponse {
+  executionId?: string;
   answer: string;
   model: string;
   provider: string;
@@ -18,280 +19,389 @@ interface InferResponse {
   log: { treeSize: number; leafIndex: number | null; durable: boolean };
 }
 
+interface Turn {
+  id: string;
+  prompt: string;
+  answer?: string;
+  result?: InferResponse;
+  verdict?: VerdictShape;
+  assurance?: Assurance | null;
+  error?: string;
+  pending: boolean;
+}
+
 const EASE = [0.2, 0, 0.2, 1] as const;
 
-export default function GatewayPage() {
-  const [prompt, setPrompt] = useState(
-    "Should applicant #48213 be approved for a EUR 12,000 loan? Debt-to-income is 61%.",
-  );
-  const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<InferResponse | null>(null);
-  const [verdict, setVerdict] = useState<VerdictShape | null>(null);
-  const [assurance, setAssurance] = useState<Assurance | null>(null);
-  const [error, setError] = useState<string | null>(null);
+/**
+ * A stable pseudonymous identity for this browser.
+ *
+ * Deliberately not a login. The point being demonstrated is that an operator
+ * can answer "what did this user ask?" without the identifier ever being
+ * stored - so the demo needs an identifier that is stable and meaningless,
+ * which is exactly what this is.
+ */
+function useDemoIdentity() {
+  const [subject, setSubject] = useState("");
+  const [sessionId, setSessionId] = useState("");
+  useEffect(() => {
+    try {
+      let existing = localStorage.getItem("mr-subject");
+      if (!existing) {
+        existing = `demo-user-${Math.random().toString(36).slice(2, 8)}`;
+        localStorage.setItem("mr-subject", existing);
+      }
+      setSubject(existing);
+    } catch {
+      setSubject("demo-user-anonymous");
+    }
+    setSessionId(`sess-${Date.now().toString(36)}`);
+  }, []);
+  return { subject, sessionId };
+}
 
-  async function run() {
+export default function GatewayPage() {
+  const [input, setInput] = useState("");
+  const [turns, setTurns] = useState<Turn[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [executionId, setExecutionId] = useState<string | undefined>();
+  const [openReceipt, setOpenReceipt] = useState<string | null>(null);
+  const { subject, sessionId } = useDemoIdentity();
+  const endRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [turns]);
+
+  async function send() {
+    const prompt = input.trim();
+    if (!prompt || busy) return;
+    const id = `t-${Date.now()}`;
+    setInput("");
     setBusy(true);
-    setError(null);
-    setResult(null);
-    setVerdict(null);
-    setAssurance(null);
+    setTurns((prev) => [...prev, { id, prompt, pending: true }]);
+
     try {
       const response = await fetch("/api/infer", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, subject, sessionId, executionId }),
       });
-      const data = await response.json();
+      const data: InferResponse & { error?: string } = await response.json();
       if (!response.ok) throw new Error(data.error ?? "request failed");
-      setResult(data);
 
-      // Verify immediately. A receipt the product itself has not checked is
-      // just a blob of JSON; showing the verdict next to it is the point.
+      // Thread later turns onto the same execution id, so a conversation is one
+      // linked chain of receipts rather than unrelated records.
+      if (data.executionId && !executionId) setExecutionId(data.executionId);
+
       const verifyResponse = await fetch("/api/verify", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ evidence: data.receipt }),
       });
-      const { verdict: v } = await verifyResponse.json();
-      setVerdict(v);
-      setAssurance(assess(v, data.receipt as never));
-    } catch (err) {
-      setError((err as Error).message);
+      const { verdict } = await verifyResponse.json();
+
+      setTurns((prev) =>
+        prev.map((turn) =>
+          turn.id === id
+            ? {
+                ...turn,
+                pending: false,
+                answer: data.answer,
+                result: data,
+                verdict,
+                assurance: assess(verdict, data.receipt as never),
+              }
+            : turn,
+        ),
+      );
+    } catch (error) {
+      setTurns((prev) =>
+        prev.map((turn) =>
+          turn.id === id ? { ...turn, pending: false, error: (error as Error).message } : turn,
+        ),
+      );
     } finally {
       setBusy(false);
     }
   }
 
-  const record = result?.receipt?.record as
-    | { record_id?: string; event?: { commitments?: Record<string, string> }; time?: { issued_at?: string } }
-    | undefined;
+  const latest = [...turns].reverse().find((turn) => turn.result && turn.verdict);
 
   return (
-    <div>
-      <div className="kicker">Verifiable inference gateway</div>
-      <h1>You paid for a model. Prove which one you got.</h1>
-      <p className="lede">
-        Every call through this gateway returns a cryptographic receipt naming the model, version
-        and deployment that served it — committed to the prompt and the answer without storing
-        either. Sealed by the CooL SDK, appended to a live transparency log, verifiable by anyone,
-        offline.
-      </p>
-
-      <div className="grid-2">
-        <div className="panel">
-          <h2>Send a prompt</h2>
-          <textarea
-            rows={5}
-            value={prompt}
-            onChange={(event) => setPrompt(event.target.value)}
-            placeholder="Ask the model something…"
-          />
-          <div className="row" style={{ marginTop: 12 }}>
-            <button onClick={run} disabled={busy || !prompt.trim()}>
-              {busy ? "Sealing…" : "Run + seal receipt"}
-            </button>
-            {result && (
-              <Link href="/verify">
-                <button className="ghost">Open in verifier →</button>
-              </Link>
-            )}
-          </div>
-
-          {error && (
-            <p className="note" style={{ color: "var(--fail)", marginTop: 12 }}>
-              {error}
-            </p>
-          )}
-
-          <AnimatePresence>
-            {result && (
-              <motion.div
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, ease: EASE }}
-                style={{ marginTop: 18 }}
-              >
-                <div className="kicker">Model answer</div>
-                <pre className="snippet" style={{ whiteSpace: "pre-wrap" }}>
-                  {result.answer}
-                </pre>
-                <div className="row" style={{ marginTop: 10 }}>
-                  <span className="tag">{result.model}</span>
-                  <span className="tag">{result.provider}</span>
-                  <span className="tag">precision: {result.precision}</span>
-                  <span className="tag">{result.latencyMs} ms</span>
-                </div>
-                {result.simulatedModel && (
-                  <p className="note" style={{ marginTop: 10 }}>
-                    <strong>No upstream model is configured on this deployment</strong>, so the
-                    answer came from the built-in deterministic model — and the receipt says so.
-                    The receipt itself is real: signed, logged and verifiable.
-                  </p>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+    <div className="chat-page">
+      <div style={{ textAlign: "center", marginBottom: 24 }}>
+        <div className="kicker" style={{ marginBottom: 8 }}>
+          Verifiable inference gateway
         </div>
-
-        <div className="panel">
-          <h2>The receipt</h2>
-          {!result && !busy && (
-            <p className="note">
-              Run a prompt and the sealed receipt appears here, already verified. Then take it to
-              the <Link href="/verify">verifier</Link> and change a single character.
-            </p>
-          )}
-
-          {busy && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="note"
-              style={{ fontFamily: "var(--mono)" }}
-            >
-              <SealingSteps />
-            </motion.div>
-          )}
-
-          <AnimatePresence>
-            {result && verdict && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="field">
-                  <span className="field-key">record_id</span>
-                  <span className="field-val strong">{record?.record_id}</span>
-                </div>
-                <div className="field">
-                  <span className="field-key">issued_at</span>
-                  <span className="field-val">{record?.time?.issued_at}</span>
-                </div>
-                <div className="field">
-                  <span className="field-key">input</span>
-                  <span className="field-val">{record?.event?.commitments?.input}</span>
-                </div>
-                <div className="field">
-                  <span className="field-key">output</span>
-                  <span className="field-val">{record?.event?.commitments?.output}</span>
-                </div>
-                <div className="field">
-                  <span className="field-key">log leaf</span>
-                  <span className="field-val">
-                    #{result.log.leafIndex} of tree size {result.log.treeSize}
-                    {result.log.durable ? " (durable)" : " (in-memory)"}
-                  </span>
-                </div>
-
-                <p className="note" style={{ marginTop: 12 }}>
-                  <strong>Note what is not here:</strong> the prompt and the answer. The SDK
-                  committed to both as salted hashes and discarded the plaintext — those two{" "}
-                  <code>mh:sha256:</code> values are all that remain.
-                </p>
-
-                <div style={{ marginTop: 18 }}>
-                  <VerdictPanel verdict={verdict} assurance={assurance} />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        <h1 style={{ marginBottom: 10 }}>Every answer comes with a receipt.</h1>
+        <p className="lede" style={{ margin: "0 auto" }}>
+          Ask anything. The model answers, and that answer is sealed into a cryptographic receipt
+          naming the model, version and deployment that produced it — without storing your prompt
+          or the reply. Verifiable by anyone, offline.
+        </p>
       </div>
 
-      {result && verdict && (
-        <motion.div
-          className="panel"
-          style={{ marginTop: 20 }}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, ease: EASE }}
-        >
-          <Pipeline
-            data={{
-              promptChars: prompt.length,
-              outputChars: result.answer.length,
-              inputCommitment: record?.event?.commitments?.input,
-              outputCommitment: record?.event?.commitments?.output,
-              signatureAlg: (result.receipt as { record?: { signature?: { alg?: string; key_id?: string } } })
-                .record?.signature?.alg,
-              keyId: (result.receipt as { record?: { signature?: { key_id?: string } } }).record
-                ?.signature?.key_id,
-              leafIndex: result.log.leafIndex,
-              treeSize: result.log.treeSize,
-              recordId: record?.record_id,
-              durable: result.log.durable,
-            }}
-          />
-        </motion.div>
-      )}
+      <div className="chat-thread">
+        {turns.length === 0 && (
+          <div className="chat-empty">
+            <p className="note" style={{ margin: 0 }}>
+              Try: <em>&quot;Should a borrower with 61% debt-to-income be approved?&quot;</em>
+              <br />
+              <br />
+              Each reply carries its own receipt, and the whole conversation shares one execution
+              id — so a multi-turn exchange becomes a linked chain of evidence rather than
+              unrelated records.
+            </p>
+          </div>
+        )}
 
-      {assurance && (
+        {turns.map((turn) => (
+          <div key={turn.id}>
+            <motion.div
+              className="bubble user"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, ease: EASE }}
+            >
+              {turn.prompt}
+            </motion.div>
+
+            {turn.pending && (
+              <motion.div
+                className="bubble assistant"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <SealingDots />
+              </motion.div>
+            )}
+
+            {turn.error && (
+              <div className="bubble assistant" style={{ color: "var(--fail)" }}>
+                {turn.error}
+              </div>
+            )}
+
+            {turn.answer && (
+              <motion.div
+                className="bubble assistant"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22, ease: EASE }}
+              >
+                <div style={{ whiteSpace: "pre-wrap" }}>{turn.answer}</div>
+
+                <div className="receipt-strip">
+                  <span
+                    className={`level-chip ${turn.assurance?.tone ?? "floor"}`}
+                    style={{ fontSize: 11 }}
+                  >
+                    {turn.verdict?.ok ? "VERIFIED" : "FAILED"} · {turn.assurance?.level}
+                  </span>
+                  <span className="tag">{turn.result?.model}</span>
+                  <span className="tag">
+                    leaf #{turn.result?.log.leafIndex} / {turn.result?.log.treeSize}
+                  </span>
+                  <span className="tag">{turn.result?.latencyMs} ms</span>
+                  <button
+                    className="ghost"
+                    style={{ padding: "3px 10px", fontSize: 11.5 }}
+                    onClick={() => setOpenReceipt(openReceipt === turn.id ? null : turn.id)}
+                  >
+                    {openReceipt === turn.id ? "Hide proof" : "Show proof"}
+                  </button>
+                </div>
+
+                <AnimatePresence>
+                  {openReceipt === turn.id && turn.result && turn.verdict && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.22, ease: EASE }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <div style={{ paddingTop: 16 }}>
+                        <Pipeline data={pipelineFrom(turn)} />
+                        <div style={{ marginTop: 18 }}>
+                          <VerdictPanel verdict={turn.verdict} assurance={turn.assurance} />
+                        </div>
+                        <details style={{ marginTop: 14 }}>
+                          <summary className="note" style={{ cursor: "pointer" }}>
+                            Raw receipt JSON
+                          </summary>
+                          <pre className="json" style={{ marginTop: 8 }}>
+                            {JSON.stringify(turn.result.receipt, null, 2)}
+                          </pre>
+                        </details>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </div>
+        ))}
+        <div ref={endRef} />
+      </div>
+
+      <div className="composer">
+        <textarea
+          rows={2}
+          value={input}
+          onChange={(event) => setInput(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              void send();
+            }
+          }}
+          placeholder="Ask the model anything…   (Enter to send · Shift+Enter for a new line)"
+        />
+        <button onClick={send} disabled={busy || !input.trim()}>
+          {busy ? "Sealing…" : "Send"}
+        </button>
+      </div>
+
+      <div className="row" style={{ justifyContent: "center", marginTop: 12 }}>
+        <span className="note" style={{ fontSize: 11.5, textAlign: "center" }}>
+          you are <code>{subject || "…"}</code> · session <code>{sessionId || "…"}</code>
+          {subject && (
+            <>
+              {" · "}
+              <Link href={`/audit?subject=${encodeURIComponent(subject)}`}>
+                look up everything this user asked →
+              </Link>
+            </>
+          )}
+        </span>
+      </div>
+
+      {latest?.assurance && (
         <motion.div
           className="panel"
-          style={{ marginTop: 20 }}
+          style={{ marginTop: 24 }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: EASE }}
         >
-          <AssuranceLadder assurance={assurance} />
+          <AssuranceLadder assurance={latest.assurance} />
         </motion.div>
       )}
 
       <div className="panel" style={{ marginTop: 20 }}>
-        <h2>Or point your own app at it</h2>
-        <p className="note" style={{ marginBottom: 12 }}>
-          The gateway speaks the OpenAI API. Change one line, keep your own key and your own
-          provider, and every completion your application makes comes back with a receipt — in
-          Python, JavaScript, or anything else that accepts a base URL.
-        </p>
-        <pre className="snippet">
-          <span className="cmt"># Python — your existing code, one line changed</span>
-          {"\n"}from openai import OpenAI{"\n"}
-          {"\n"}client = OpenAI({"\n"}
-          {"    "}<span className="hl">base_url=&quot;/v1&quot;</span>
-          <span className="cmt">{"  # ← this deployment"}</span>
-          {"\n"}
-          {"    "}api_key=YOUR_OWN_PROVIDER_KEY,{"\n"});{"\n"}
-          {"\n"}resp = client.chat.completions.create({"\n"}
-          {"    "}model=&quot;qwen/qwen3.8-27b&quot;,{"\n"}
-          {"    "}messages=[{"{"}&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;hello&quot;{"}"}],{"\n"}
-          ){"\n"}
-          <span className="cmt"># receipt rides along in resp._modelreceipt and the response headers</span>
-        </pre>
+        <h2>Everything this gateway does</h2>
+        <div className="feature-grid">
+          <Feature
+            href="/verify"
+            title="Try to forge a receipt"
+            body="Four single-character attacks. They fail differently, and the failure pattern names the class of forgery."
+          />
+          <Feature
+            href="/log"
+            title="One tree, not a thousand"
+            body="A durable RFC 6962 log that survives serverless cold starts, drawn as the lopsided tree it really is."
+          />
+          <Feature
+            href="/compliance"
+            title="Obligation coverage"
+            body="Computed from real receipts, never asserted. Gaps are reported with the field that would close them."
+          />
+          <Feature
+            href="/audit"
+            title="Who asked what"
+            body="Look up a user's whole history by pseudonymous reference — without their identifier ever being stored."
+          />
+          <Feature
+            href="/how-it-works"
+            title="Architecture & honest limits"
+            body="Including what this cannot prove, and why every receipt here is marked simulated."
+          />
+          <Feature
+            href="https://github.com/Abrarbyte/modelreceipt#readme"
+            title="Drop-in proxy & Python client"
+            body="Change one line of your own app's base URL, in any language, and keep your own provider key."
+            external
+          />
+        </div>
       </div>
     </div>
   );
 }
 
+function pipelineFrom(turn: Turn): PipelineData {
+  const receipt = turn.result?.receipt as
+    | {
+        record?: {
+          record_id?: string;
+          signature?: { alg?: string; key_id?: string };
+          event?: { commitments?: Record<string, string> };
+        };
+      }
+    | undefined;
+  return {
+    promptChars: turn.prompt.length,
+    outputChars: turn.answer?.length ?? 0,
+    inputCommitment: receipt?.record?.event?.commitments?.input,
+    outputCommitment: receipt?.record?.event?.commitments?.output,
+    signatureAlg: receipt?.record?.signature?.alg,
+    keyId: receipt?.record?.signature?.key_id,
+    leafIndex: turn.result?.log.leafIndex,
+    treeSize: turn.result?.log.treeSize,
+    recordId: receipt?.record?.record_id,
+    durable: turn.result?.log.durable,
+  };
+}
+
+function Feature({
+  href,
+  title,
+  body,
+  external,
+}: {
+  href: string;
+  title: string;
+  body: string;
+  external?: boolean;
+}) {
+  const inner = (
+    <>
+      <div className="feature-title">{title}</div>
+      <div className="feature-body">{body}</div>
+    </>
+  );
+  return external ? (
+    <a className="feature" href={href} target="_blank" rel="noreferrer">
+      {inner}
+    </a>
+  ) : (
+    <Link className="feature" href={href}>
+      {inner}
+    </Link>
+  );
+}
+
 /**
- * A stepped progress readout while the request is in flight.
+ * Stage labels while the request is in flight.
  *
- * Honest about what it is: these are the stages the request genuinely passes
- * through, timed to typical latency rather than driven by real events. It never
- * claims a step succeeded — the verdict that follows does that.
+ * These are the stages the request genuinely passes through, cycling rather
+ * than filling - because there is no progress signal to report and a bar that
+ * pretended otherwise would be the one dishonest pixel on the page.
  */
-function SealingSteps() {
-  const steps = [
-    "calling model…",
-    "hashing prompt + completion (salted)…",
-    "signing record (ML-DSA-65 + Ed25519)…",
-    "appending to transparency log…",
-    "building inclusion proof…",
-  ];
+function SealingDots() {
+  const steps = ["calling model", "hashing prompt + answer", "signing", "appending to log"];
   return (
-    <div>
+    <div className="note" style={{ fontFamily: "var(--mono)", fontSize: 12 }}>
       {steps.map((step, index) => (
-        <motion.div
+        <motion.span
           key={step}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: index * 0.22, duration: 0.2 }}
-          style={{ padding: "3px 0" }}
+          initial={{ opacity: 0.25 }}
+          animate={{ opacity: [0.25, 1, 0.25] }}
+          transition={{ duration: 1.4, repeat: Infinity, delay: index * 0.28 }}
+          style={{ marginRight: 14, display: "inline-block" }}
         >
-          <span style={{ color: "var(--accent)" }}>▸</span> {step}
-        </motion.div>
+          {step}
+        </motion.span>
       ))}
     </div>
   );
