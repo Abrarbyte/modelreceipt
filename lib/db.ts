@@ -16,15 +16,37 @@ export type Sql = ReturnType<typeof neon>;
 let cached: Sql | null = null;
 let schemaReady: Promise<void> | null = null;
 
-/** True when a database is configured. Without one the app runs in-memory. */
-export function hasDatabase(): boolean {
-  return Boolean(process.env.DATABASE_URL);
+/**
+ * Find the connection string.
+ *
+ * Vercel's Postgres integrations name this variable differently depending on
+ * which provider and prefix were chosen at setup time (`DATABASE_URL`,
+ * `POSTGRES_URL`, `STORAGE_URL`, …). Accepting the common spellings means a
+ * mis-set prefix degrades to a clear in-memory warning in the UI rather than a
+ * silent loss of the durable log — which would be the one failure mode nobody
+ * would notice until the proofs stopped meaning anything.
+ */
+function connectionString(): string | undefined {
+  const candidates = [
+    process.env.DATABASE_URL,
+    process.env.POSTGRES_URL,
+    process.env.STORAGE_URL,
+    process.env.DATABASE_POSTGRES_URL,
+    process.env.NEON_DATABASE_URL,
+  ];
+  return candidates.find((value) => typeof value === "string" && value.length > 0);
 }
 
-/** The Neon client, or null when DATABASE_URL is unset. */
+/** True when a database is configured. Without one the app runs in-memory. */
+export function hasDatabase(): boolean {
+  return Boolean(connectionString());
+}
+
+/** The Neon client, or null when no connection string is configured. */
 export function sql(): Sql | null {
-  if (!hasDatabase()) return null;
-  if (!cached) cached = neon(process.env.DATABASE_URL as string);
+  const url = connectionString();
+  if (!url) return null;
+  if (!cached) cached = neon(url);
   return cached;
 }
 
