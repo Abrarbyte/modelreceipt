@@ -13,7 +13,7 @@ keywords = ["ai", "audit", "evidence", "attestation", "transparency-log", "cool-
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/USERNAME/modelreceipt"
+Homepage = "https://github.com/Abrarbyte/modelreceipt"
 
 [tool.setuptools.packages.find]
 where = ["."]

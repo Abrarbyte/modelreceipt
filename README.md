@@ -4,7 +4,12 @@
 
 A verifiable inference gateway built on the [CooL SDK](https://github.com/Northwind-Cipher/cool-sdk) (`cool-nwc`). Every completion that passes through it returns a cryptographic receipt naming the model, version and deployment that served it — committed to the prompt and the answer **without storing either** — appended to a live append-only transparency log, and verifiable by anyone, offline, with no account and no trust in this deployment.
 
-**Live demo:** _(Vercel URL)_ · **Repository:** _(GitHub URL)_
+**Live demo: https://modelreceipt.vercel.app** · **Repository: https://github.com/Abrarbyte/modelreceipt**
+
+Try it in 30 seconds — no signup:
+1. [Seal a receipt](https://modelreceipt.vercel.app) — type a prompt, watch the receipt appear already verified
+2. [Break it](https://modelreceipt.vercel.app/verify) — press **Tamper 1 character** and watch `binding` and `signature` flip to FAILED
+3. [Watch the log grow](https://modelreceipt.vercel.app/log) — one append-only tree, with consistency proofs
 
 ---
 
@@ -51,7 +56,7 @@ The adoption path that matters. Change **one line** in your own application, kee
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://your-deployment.vercel.app/v1",   # ← only change
+    base_url="https://modelreceipt.vercel.app/v1",   # ← only change
     api_key=YOUR_OWN_PROVIDER_KEY,
 )
 
@@ -77,7 +82,7 @@ pip install -e clients/python
 ```
 ```python
 from modelreceipt import ModelReceipt
-mr = ModelReceipt("https://your-deployment.vercel.app")
+mr = ModelReceipt("https://modelreceipt.vercel.app")
 answer, receipt = mr.chat("Summarise this clause.", api_key=KEY)
 print(mr.verify(receipt))
 mr.disclose(receipt, "Summarise this clause.")   # True — one field, nothing else
@@ -193,6 +198,26 @@ Design decisions that keep it honest:
               anyone: npx cool-nwc verify receipt.json      (offline, no account, exit≠0 gates CI)
 ```
 
+### Verified in production
+
+Measured against the live deployment, not asserted:
+
+```
+4 separate HTTP requests  ->  leaf #0 tree=1,  leaf #1 tree=2,
+                              leaf #2 tree=3,  leaf #3 tree=4      (durable=true)
+
+consistency  size 1 -> 4 : valid (2 proof nodes)
+consistency  size 2 -> 4 : valid (1 proof node)
+consistency  size 3 -> 4 : valid (3 proof nodes)
+
+original receipt  : binding pass · signature pass · inclusion pass  -> VERIFIED
+1 character edited: binding FAIL · signature FAIL                   -> FAILED
+selective disclosure: correct text -> true,  one character off -> false
+```
+
+With the SDK's stock in-memory log on the same infrastructure, all four rows would
+read `leaf #0 tree=1` and no consistency proof could exist.
+
 **Stack:** Next.js 15 (App Router) · React 19 · TypeScript strict · Neon/Vercel Postgres · Motion · `cool-nwc` 3.0.0 · Node ≥ 20
 
 **Storage — note what is and is not retained:**
@@ -209,7 +234,7 @@ The public receipt feed on `/log` is public *on purpose* — it cannot leak prom
 ## 6. Running it
 
 ```bash
-git clone <repo> && cd modelreceipt
+git clone https://github.com/Abrarbyte/modelreceipt && cd modelreceipt
 npm install
 cp .env.example .env.local
 npm run dev          # http://localhost:3000
