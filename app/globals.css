@@ -1259,3 +1259,121 @@ table.log tr:hover td {
     text-align: left;
   }
 }
+
+/* ---------- drive simulator ---------- */
+
+.sim {
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr);
+  gap: 14px;
+}
+@media (max-width: 900px) {
+  .sim {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sim-stage {
+  position: relative;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--line-bright);
+  background: #07050d;
+  box-shadow: 0 0 40px rgb(139 92 246 / 12%);
+}
+
+.sim-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sim-hud {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  right: 12px;
+  pointer-events: none;
+}
+
+.sim-speed {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  line-height: 1;
+  text-shadow: 0 0 18px rgb(139 92 246 / 55%);
+}
+.sim-speed span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  margin-left: 4px;
+}
+
+.sim-action {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  margin-top: 6px;
+}
+
+.sim-reason {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  max-width: 300px;
+  line-height: 1.35;
+}
+
+.sim-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: rgb(5 3 10 / 62%);
+  backdrop-filter: blur(3px);
+  padding: 20px;
+}
+
+.sim-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.sim-controls {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  background: rgb(3 2 8 / 55%);
+}
+.sim-controls button {
+  padding: 8px 12px;
+  font-size: 12.5px;
+}
+
+.sim-feed {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  background: rgb(3 2 8 / 55%);
+  flex: 1;
+  min-height: 220px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.sim-event {
+  border: 1px solid var(--line);
+  border-left-width: 3px;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  background: rgb(8 6 15 / 70%);
+}
