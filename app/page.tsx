@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { assess, type Assurance } from "@/lib/assurance";
 import { AssuranceLadder, VerdictPanel, type VerdictShape } from "@/components/Verdict";
 import { Pipeline, type PipelineData } from "@/components/Pipeline";
+import { FlowCanvas } from "@/components/FlowCanvas";
 
 interface InferResponse {
   executionId?: string;
@@ -133,12 +134,18 @@ export default function GatewayPage() {
         <div className="kicker" style={{ marginBottom: 8 }}>
           Verifiable inference gateway
         </div>
-        <h1 style={{ marginBottom: 10 }}>Every answer comes with a receipt.</h1>
+        <h1 style={{ marginBottom: 10 }}>
+          Every answer comes with a <span className="glow">receipt</span>.
+        </h1>
         <p className="lede" style={{ margin: "0 auto" }}>
           Ask anything. The model answers, and that answer is sealed into a cryptographic receipt
           naming the model, version and deployment that produced it — without storing your prompt
           or the reply. Verifiable by anyone, offline.
         </p>
+      </div>
+
+      <div style={{ marginBottom: 22 }}>
+        <FlowCanvas liveRecordId={latest?.result?.receipt ? String((latest.result.receipt as { record?: { record_id?: string } }).record?.record_id ?? "") : null} />
       </div>
 
       <div className="chat-thread">
