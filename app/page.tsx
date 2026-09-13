@@ -323,6 +323,11 @@ export default function GatewayPage() {
             body="Claims, credit, KYC, support — real enterprise decisions about people, sealed with a receipt. Structured input, not chat."
           />
           <Feature
+            href="/vehicle"
+            title="After the crash, who holds the evidence?"
+            body="An autonomous-vehicle trip sealed as a chain — policy version, OTA update with approvers, driver override, collision window."
+          />
+          <Feature
             href="/verify"
             title="Try to forge a receipt"
             body="Four single-character attacks. They fail differently, and the failure pattern names the class of forgery."

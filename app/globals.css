@@ -1199,3 +1199,63 @@ table.log tr:hover td {
 .field input[type="text"] {
   width: 100%;
 }
+
+/* ---------- vehicle timeline ---------- */
+
+.timeline {
+  display: grid;
+  gap: 8px;
+}
+
+.tl-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 150px;
+  grid-template-areas:
+    "t frame action"
+    "t reason action"
+    "t receipt action";
+  gap: 4px 12px;
+  align-items: start;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgb(3 2 8 / 65%);
+}
+.tl-t {
+  grid-area: t;
+  color: var(--text-faint);
+  font-size: 12px;
+  padding-top: 3px;
+}
+.tl-frame {
+  grid-area: frame;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tl-action {
+  grid-area: action;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-align: right;
+  padding-top: 3px;
+}
+.tl-reason {
+  grid-area: reason;
+}
+.tl-receipt {
+  grid-area: receipt;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-faint);
+}
+@media (max-width: 640px) {
+  .tl-row {
+    grid-template-columns: 1fr;
+    grid-template-areas: "t" "action" "frame" "reason" "receipt";
+  }
+  .tl-action {
+    text-align: left;
+  }
+}
