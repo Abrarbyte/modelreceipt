@@ -278,7 +278,7 @@ export default function WhyPage() {
             </div>
             <div className="field">
               <span className="field-key">what was said?</span>
-              <span className="field-val" style={{ color: "var(--magenta)" }}>
+              <span className="field-val" style={{ color: "var(--primary)" }}>
                 nowhere, until the user discloses
               </span>
             </div>

@@ -35,9 +35,9 @@ const STAGES: FlowStage[] = [
 ];
 
 const TONE: Record<FlowStage["tone"], string> = {
-  cyan: "var(--violet)",
-  magenta: "var(--magenta)",
-  violet: "var(--violet)",
+  cyan: "var(--primary)",
+  magenta: "var(--primary)",
+  violet: "var(--primary)",
 };
 
 interface Packet {
