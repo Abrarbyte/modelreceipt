@@ -508,3 +508,76 @@ table.log td {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ---------- sealing pipeline ---------- */
+
+.pipeline {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 860px) {
+  .pipeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 460px) {
+  .pipeline {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stage {
+  position: relative;
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 11px 12px;
+  min-width: 0;
+}
+
+.stage-title {
+  font-size: 12px;
+  font-weight: 620;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.stage-detail {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.stage-value {
+  margin-top: 6px;
+  font-size: 10.5px;
+  color: var(--accent);
+  word-break: break-all;
+}
+
+.stage-note {
+  margin-top: 6px;
+  font-size: 10.5px;
+  color: var(--text-faint);
+  line-height: 1.35;
+}
+
+/* The arrow sits in the gutter between cards, and only where there is a
+   gutter — at narrow widths the grid stacks and an arrow pointing sideways
+   would be a lie about the reading order. */
+.stage-arrow {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  font-size: 13px;
+  line-height: 1;
+}
+@media (max-width: 860px) {
+  .stage-arrow {
+    display: none;
+  }
+}

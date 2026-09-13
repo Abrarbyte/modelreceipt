@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { assess, type Assurance } from "@/lib/assurance";
 import { AssuranceLadder, VerdictPanel, type VerdictShape } from "@/components/Verdict";
+import { Pipeline } from "@/components/Pipeline";
 
 interface InferResponse {
   answer: string;
@@ -198,6 +199,33 @@ export default function GatewayPage() {
           </AnimatePresence>
         </div>
       </div>
+
+      {result && verdict && (
+        <motion.div
+          className="panel"
+          style={{ marginTop: 20 }}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, ease: EASE }}
+        >
+          <Pipeline
+            data={{
+              promptChars: prompt.length,
+              outputChars: result.answer.length,
+              inputCommitment: record?.event?.commitments?.input,
+              outputCommitment: record?.event?.commitments?.output,
+              signatureAlg: (result.receipt as { record?: { signature?: { alg?: string; key_id?: string } } })
+                .record?.signature?.alg,
+              keyId: (result.receipt as { record?: { signature?: { key_id?: string } } }).record
+                ?.signature?.key_id,
+              leafIndex: result.log.leafIndex,
+              treeSize: result.log.treeSize,
+              recordId: record?.record_id,
+              durable: result.log.durable,
+            }}
+          />
+        </motion.div>
+      )}
 
       {assurance && (
         <motion.div

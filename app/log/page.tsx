@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { MerkleTree } from "@/components/MerkleTree";
 
 interface LogStatus {
   durable: boolean;
@@ -37,6 +38,7 @@ export default function LogPage() {
   const [status, setStatus] = useState<LogStatus | null>(null);
   const [rows, setRows] = useState<ReceiptRow[]>([]);
   const [since, setSince] = useState(1);
+  const [selectedLeaf, setSelectedLeaf] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async (checkFrom: number) => {
@@ -222,6 +224,20 @@ export default function LogPage() {
       </div>
 
       <div className="panel" style={{ marginTop: 20 }}>
+        <h2>The tree itself</h2>
+        <p className="note" style={{ marginBottom: 14 }}>
+          Drawn the way RFC 6962 actually builds it — the tree splits at the largest power of two
+          below the leaf count, so it is deliberately lopsided rather than tidy. Click any leaf to
+          see the audit path a verifier would be given to prove it belongs.
+        </p>
+        <MerkleTree
+          size={status?.size ?? 0}
+          highlight={selectedLeaf}
+          onSelect={(leaf) => setSelectedLeaf(leaf)}
+        />
+      </div>
+
+      <div className="panel" style={{ marginTop: 20 }}>
         <h2>Recent receipts</h2>
         <p className="note" style={{ marginBottom: 12 }}>
           This feed is public on purpose. Note what it cannot leak: no prompt, no completion, no
@@ -249,7 +265,13 @@ export default function LogPage() {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.18, delay: Math.min(index * 0.02, 0.3) }}
                   >
-                    <td style={{ color: "var(--accent)" }}>#{row.leaf_index ?? "—"}</td>
+                    <td
+                      style={{ color: "var(--accent)", cursor: "pointer" }}
+                      onClick={() => setSelectedLeaf(row.leaf_index)}
+                      title="Show this leaf in the tree above"
+                    >
+                      #{row.leaf_index ?? "—"}
+                    </td>
                     <td>{row.record_id.slice(0, 14)}…</td>
                     <td>{row.model ?? "—"}</td>
                     <td>{row.provider ?? "—"}</td>
