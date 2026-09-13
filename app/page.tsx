@@ -315,18 +315,34 @@ export default function GatewayPage() {
       )}
 
       <div className="panel" style={{ marginTop: 20 }}>
-        <h2>Everything this gateway does</h2>
+        <div className="kicker">ModelReceipt, applied</div>
+        <h2 style={{ marginBottom: 6 }}>
+          One question, three places it matters: <em>which model made this decision, and can anyone verify it?</em>
+        </h2>
+        <p className="note" style={{ marginBottom: 14 }}>
+          A chat answer. A loan decision. A driving decision. Same receipt, same verifier, same SDK
+          underneath. Every one of these is live — use it, then try to break it.
+        </p>
+        <div className="apps-row">
+          <Link className="app-card" href="/">
+            <div className="app-num mono">01</div>
+            <div className="feature-title">Chat</div>
+            <div className="feature-body">Ask anything above. Every reply carries its receipt inline.</div>
+          </Link>
+          <Link className="app-card" href="/decisions">
+            <div className="app-num mono">02</div>
+            <div className="feature-title">Enterprise decisions</div>
+            <div className="feature-body">Claims, credit, KYC, support — what Lemonade, Allianz and JPMorgan actually run.</div>
+          </Link>
+          <Link className="app-card" href="/vehicle">
+            <div className="app-num mono">03</div>
+            <div className="feature-title">Autonomous vehicle</div>
+            <div className="feature-body">Drive it, crash it, investigate it. The evidence was sealed before the crash.</div>
+          </Link>
+        </div>
+
+        <h2 style={{ marginTop: 26 }}>Everything else this gateway does</h2>
         <div className="feature-grid">
-          <Feature
-            href="/decisions"
-            title="What production AI actually does"
-            body="Claims, credit, KYC, support — real enterprise decisions about people, sealed with a receipt. Structured input, not chat."
-          />
-          <Feature
-            href="/vehicle"
-            title="After the crash, who holds the evidence?"
-            body="An autonomous-vehicle trip sealed as a chain — policy version, OTA update with approvers, driver override, collision window."
-          />
           <Feature
             href="/verify"
             title="Try to forge a receipt"
