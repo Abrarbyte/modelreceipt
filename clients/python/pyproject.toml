@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "modelreceipt"
+version = "1.0.0"
+description = "Verifiable receipts for AI inference — Python client for a ModelReceipt gateway (CooL SDK)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+keywords = ["ai", "audit", "evidence", "attestation", "transparency-log", "cool-sdk"]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/USERNAME/modelreceipt"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["modelreceipt*"]

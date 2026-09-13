@@ -1,0 +1,30 @@
+{
+  "name": "modelreceipt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Verifiable inference receipts for AI model execution, built on the CooL SDK.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
+    "cool-nwc": "^3.0.0",
+    "motion": "^13.2.0",
+    "next": "^15.5.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

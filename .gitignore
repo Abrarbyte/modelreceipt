@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+.env
+.env*.local
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# python client
+__pycache__/
+*.egg-info/
+.tmp/
