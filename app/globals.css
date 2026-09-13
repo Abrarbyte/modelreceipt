@@ -1,36 +1,38 @@
 /*
  * ModelReceipt — visual system.
  *
- * High-tech and luminous, but colour still carries meaning first: cyan is the
- * data path, magenta is cryptography, lime is a passing check, amber a hedged
- * one, red a failure. Nothing glows decoratively anywhere a status could be
- * misread for it.
+ * Obsidian ground, violet light. Colour still carries meaning first: violet is
+ * the data path, magenta is cryptography, lime is a passing check, amber a
+ * hedged one, red a failure. Nothing glows decoratively anywhere a status could
+ * be misread for it.
  *
  * Everything that moves animates transform or opacity so the compositor
  * handles it, and every ambient animation stops under prefers-reduced-motion.
  */
 
 :root {
-  --bg: #05060e;
-  --bg-deep: #02030a;
-  --bg-raised: #0b0e1d;
-  --bg-sunken: #070919;
+  /* Obsidian Glow — near-black ground, deep violet light. */
+  --bg: #050505;
+  --bg-deep: #000000;
+  --bg-raised: #0d0a18;
+  --bg-sunken: #08060f;
 
-  --line: #1a2040;
-  --line-bright: #2b3566;
+  --line: #241a44;
+  --line-bright: #3a2a72;
 
-  --text: #eef2ff;
-  --text-dim: #9fb0d9;
-  --text-faint: #6b7aa8;
+  --text: #f3f0ff;
+  --text-dim: #b3a8d6;
+  --text-faint: #7a6ea6;
 
-  /* the data path */
-  --cyan: #22e0ff;
-  /* cryptography */
-  --magenta: #ff3ea5;
-  --violet: #a855f7;
+  /* the deep brand violet from the palette */
+  --purple-deep: #3a0ca3;
+  /* the luminous variant that survives on near-black */
+  --violet: #8b5cf6;
+  --violet-bright: #a855f7;
+  --magenta: #c026d3;
 
-  --accent: var(--cyan);
-  --accent-dim: #0a2a3d;
+  --accent: var(--violet);
+  --accent-dim: #1b0b3d;
 
   --pass: #3ef0a0;
   --pass-dim: #06301f;
@@ -39,7 +41,7 @@
   --fail: #ff4d6d;
   --fail-dim: #3d0d18;
 
-  --glow-cyan: 0 0 24px rgb(34 224 255 / 35%);
+  --glow-violet: 0 0 26px rgb(139 92 246 / 42%);
 
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
   --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
@@ -72,8 +74,8 @@ body::before {
   inset: -50%;
   z-index: -2;
   background-image:
-    linear-gradient(rgb(34 224 255 / 7%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(34 224 255 / 7%) 1px, transparent 1px);
+    linear-gradient(rgb(139 92 246 / 7%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(139 92 246 / 7%) 1px, transparent 1px);
   background-size: 46px 46px;
   transform: perspective(600px) rotateX(58deg);
   transform-origin: 50% 0;
@@ -88,9 +90,9 @@ body::after {
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(900px 500px at 15% -10%, rgb(34 224 255 / 15%), transparent 60%),
-    radial-gradient(800px 500px at 85% 0%, rgb(255 62 165 / 12%), transparent 60%),
-    radial-gradient(1000px 700px at 50% 110%, rgb(168 85 247 / 11%), transparent 60%),
+    radial-gradient(900px 520px at 12% -12%, rgb(58 12 163 / 55%), transparent 62%),
+    radial-gradient(820px 520px at 88% -4%, rgb(139 92 246 / 26%), transparent 60%),
+    radial-gradient(1100px 760px at 50% 112%, rgb(58 12 163 / 42%), transparent 64%),
     linear-gradient(180deg, transparent 0%, var(--bg-deep) 88%);
   pointer-events: none;
 }
@@ -102,7 +104,7 @@ body::after {
 }
 
 a {
-  color: var(--cyan);
+  color: var(--violet);
   text-decoration: none;
 }
 a:hover {
@@ -137,7 +139,7 @@ pre,
   font-weight: 700;
   letter-spacing: -0.015em;
   font-size: 15.5px;
-  background: linear-gradient(92deg, var(--cyan), var(--magenta));
+  background: linear-gradient(92deg, var(--violet-bright), var(--magenta));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -146,10 +148,10 @@ pre,
   text-decoration: none;
 }
 .brand-mark {
-  color: var(--cyan);
+  color: var(--violet);
   margin-right: 5px;
-  -webkit-text-fill-color: var(--cyan);
-  text-shadow: var(--glow-cyan);
+  -webkit-text-fill-color: var(--violet);
+  text-shadow: var(--glow-violet);
 }
 
 .site-header nav {
@@ -170,7 +172,7 @@ pre,
   bottom: -5px;
   height: 1px;
   width: 0;
-  background: linear-gradient(90deg, var(--cyan), var(--magenta));
+  background: linear-gradient(90deg, var(--violet-bright), var(--magenta));
   transition: width 0.22s ease;
 }
 .site-header nav a:hover {
@@ -197,7 +199,7 @@ main {
   margin: 0 auto;
 }
 .site-footer code {
-  color: var(--cyan);
+  color: var(--violet);
 }
 
 /* ---------- type ---------- */
@@ -211,11 +213,11 @@ h1 {
 }
 
 h1 .glow {
-  background: linear-gradient(95deg, var(--cyan) 10%, var(--violet) 55%, var(--magenta) 95%);
+  background: linear-gradient(95deg, var(--violet-bright) 5%, #c084fc 45%, var(--magenta) 95%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 0 22px rgb(34 224 255 / 26%));
+  filter: drop-shadow(0 0 22px rgb(139 92 246 / 26%));
 }
 
 h2 {
@@ -243,7 +245,7 @@ h3 {
   letter-spacing: 0.16em;
   font-weight: 700;
   margin-bottom: 10px;
-  background: linear-gradient(90deg, var(--cyan), var(--magenta));
+  background: linear-gradient(90deg, var(--violet-bright), var(--magenta));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -280,7 +282,7 @@ h3 {
   left: 14%;
   right: 14%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgb(34 224 255 / 55%), transparent);
+  background: linear-gradient(90deg, transparent, rgb(139 92 246 / 55%), transparent);
 }
 
 .panel-tight {
@@ -307,8 +309,8 @@ input[type="text"] {
 }
 textarea:focus,
 input[type="text"]:focus {
-  border-color: var(--cyan);
-  box-shadow: 0 0 0 3px rgb(34 224 255 / 12%);
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px rgb(139 92 246 / 12%);
 }
 textarea.mono {
   font-family: var(--mono);
@@ -317,8 +319,8 @@ textarea.mono {
 }
 
 button {
-  background: linear-gradient(96deg, var(--cyan), #4f9dff 55%, var(--violet));
-  color: #03121a;
+  background: linear-gradient(96deg, var(--violet-bright), #7c3aed 55%, var(--purple-deep));
+  color: #ffffff;
   border: 0;
   border-radius: var(--radius-sm);
   padding: 11px 20px;
@@ -330,11 +332,11 @@ button {
     transform 0.14s ease,
     box-shadow 0.18s ease,
     filter 0.14s ease;
-  box-shadow: 0 4px 18px rgb(34 224 255 / 22%);
+  box-shadow: 0 4px 18px rgb(139 92 246 / 22%);
 }
 button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 26px rgb(34 224 255 / 34%);
+  box-shadow: 0 6px 26px rgb(139 92 246 / 34%);
   filter: brightness(1.06);
 }
 button:active:not(:disabled) {
@@ -347,21 +349,21 @@ button:disabled {
 }
 
 button.ghost {
-  background: rgb(34 224 255 / 6%);
+  background: rgb(139 92 246 / 6%);
   border: 1px solid var(--line-bright);
   color: var(--text-dim);
   box-shadow: none;
   font-weight: 560;
 }
 button.ghost:hover:not(:disabled) {
-  color: var(--cyan);
-  border-color: var(--cyan);
-  box-shadow: 0 0 18px rgb(34 224 255 / 18%);
+  color: var(--violet);
+  border-color: var(--violet);
+  box-shadow: 0 0 18px rgb(139 92 246 / 18%);
   filter: none;
 }
 
 button.danger {
-  background: linear-gradient(96deg, var(--fail), var(--magenta));
+  background: linear-gradient(96deg, var(--fail), #9d174d);
   color: #fff;
   box-shadow: 0 4px 18px rgb(255 77 109 / 26%);
 }
@@ -492,9 +494,9 @@ button.danger:hover:not(:disabled) {
   font-size: 13px;
 }
 .rung.current {
-  border-color: var(--cyan);
-  background: linear-gradient(90deg, rgb(34 224 255 / 10%), transparent);
-  box-shadow: 0 0 22px rgb(34 224 255 / 14%);
+  border-color: var(--violet);
+  background: linear-gradient(90deg, rgb(139 92 246 / 10%), transparent);
+  box-shadow: 0 0 22px rgb(139 92 246 / 14%);
 }
 .rung-id {
   font-family: var(--mono);
@@ -502,8 +504,8 @@ button.danger:hover:not(:disabled) {
   color: var(--text-dim);
 }
 .rung.current .rung-id {
-  color: var(--cyan);
-  text-shadow: var(--glow-cyan);
+  color: var(--violet);
+  text-shadow: var(--glow-violet);
 }
 
 /* ---------- code ---------- */
@@ -534,7 +536,7 @@ pre.json {
   margin: 0;
 }
 .snippet .hl {
-  color: var(--cyan);
+  color: var(--violet);
 }
 .snippet .cmt {
   color: var(--text-faint);
@@ -565,7 +567,7 @@ pre.json {
   color: var(--text-dim);
 }
 .field-val.strong {
-  color: var(--cyan);
+  color: var(--violet);
 }
 
 .note {
@@ -582,7 +584,7 @@ pre.json {
   display: inline-block;
   padding: 3px 9px;
   border-radius: 5px;
-  background: rgb(34 224 255 / 7%);
+  background: rgb(139 92 246 / 7%);
   border: 1px solid var(--line-bright);
   font-family: var(--mono);
   font-size: 11px;
@@ -632,7 +634,7 @@ table.log td {
   color: var(--text-dim);
 }
 table.log tr:hover td {
-  background: rgb(34 224 255 / 4%);
+  background: rgb(139 92 246 / 4%);
 }
 
 /* ---------- sealing pipeline (compact, inside a receipt) ---------- */
@@ -665,7 +667,7 @@ table.log tr:hover td {
 .stage-title {
   font-size: 12px;
   font-weight: 680;
-  color: var(--cyan);
+  color: var(--violet);
   margin-bottom: 4px;
 }
 .stage-detail {
@@ -691,7 +693,7 @@ table.log tr:hover td {
   right: -12px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--cyan);
+  color: var(--violet);
   font-size: 13px;
   line-height: 1;
 }
@@ -721,7 +723,7 @@ table.log tr:hover td {
   border-radius: var(--radius);
   padding: 26px 22px;
   text-align: center;
-  background: rgb(34 224 255 / 3%);
+  background: rgb(139 92 246 / 3%);
 }
 
 .bubble {
@@ -733,13 +735,13 @@ table.log tr:hover td {
 }
 
 .bubble.user {
-  background: linear-gradient(96deg, rgb(34 224 255 / 16%), rgb(168 85 247 / 14%));
-  border: 1px solid rgb(34 224 255 / 45%);
+  background: linear-gradient(96deg, rgb(139 92 246 / 16%), rgb(58 12 163 / 14%));
+  border: 1px solid rgb(139 92 246 / 45%);
   color: var(--text);
   margin-left: auto;
   max-width: 78%;
   white-space: pre-wrap;
-  box-shadow: 0 4px 22px rgb(34 224 255 / 10%);
+  box-shadow: 0 4px 22px rgb(139 92 246 / 10%);
 }
 
 .bubble.assistant {
@@ -757,7 +759,7 @@ table.log tr:hover td {
   left: 18px;
   right: 18px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgb(255 62 165 / 45%), transparent);
+  background: linear-gradient(90deg, transparent, rgb(192 38 211 / 45%), transparent);
 }
 
 .receipt-strip {
@@ -783,7 +785,7 @@ table.log tr:hover td {
   backdrop-filter: blur(14px);
   box-shadow:
     0 10px 40px rgb(0 0 0 / 55%),
-    0 0 0 1px rgb(34 224 255 / 8%);
+    0 0 0 1px rgb(139 92 246 / 8%);
 }
 .composer textarea {
   border: 0;
@@ -820,10 +822,10 @@ table.log tr:hover td {
     box-shadow 0.18s ease;
 }
 .feature:hover {
-  border-color: var(--cyan);
+  border-color: var(--violet);
   text-decoration: none;
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgb(34 224 255 / 14%);
+  box-shadow: 0 8px 30px rgb(139 92 246 / 14%);
 }
 .feature-title {
   font-size: 13.5px;
@@ -854,7 +856,7 @@ table.log tr:hover td {
   left: 10%;
   right: 10%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--cyan), var(--magenta), transparent);
+  background: linear-gradient(90deg, transparent, var(--violet), var(--magenta), transparent);
   opacity: 0.7;
 }
 
@@ -891,13 +893,13 @@ table.log tr:hover td {
   transform: translateY(-50%);
   background: linear-gradient(
     90deg,
-    rgb(34 224 255 / 35%),
-    rgb(255 62 165 / 60%),
-    rgb(168 85 247 / 60%),
-    rgb(34 224 255 / 35%)
+    rgb(139 92 246 / 35%),
+    rgb(192 38 211 / 60%),
+    rgb(58 12 163 / 60%),
+    rgb(139 92 246 / 35%)
   );
   border-radius: 2px;
-  box-shadow: 0 0 14px rgb(34 224 255 / 22%);
+  box-shadow: 0 0 14px rgb(139 92 246 / 22%);
 }
 
 .flow-packet {
@@ -908,10 +910,10 @@ table.log tr:hover td {
   height: 9px;
   margin-left: -4.5px;
   border-radius: 50%;
-  background: var(--cyan);
+  background: var(--violet);
   box-shadow:
-    0 0 10px var(--cyan),
-    0 0 22px rgb(34 224 255 / 55%);
+    0 0 10px var(--violet),
+    0 0 22px rgb(139 92 246 / 55%);
   will-change: transform;
 }
 
@@ -923,7 +925,7 @@ table.log tr:hover td {
   background: var(--magenta);
   box-shadow:
     0 0 14px var(--magenta),
-    0 0 30px rgb(255 62 165 / 65%);
+    0 0 30px rgb(192 38 211 / 65%);
 }
 
 .flow-stages {
@@ -1036,4 +1038,71 @@ table.log tr:hover td {
   border-radius: 50%;
   flex: 0 0 auto;
   box-shadow: 0 0 12px currentColor;
+}
+
+/* ---------- rendered model output ---------- */
+
+.md {
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+.md > *:first-child {
+  margin-top: 0;
+}
+.md > *:last-child {
+  margin-bottom: 0;
+}
+
+.md-p {
+  margin: 0 0 10px;
+}
+
+.md-h {
+  font-weight: 680;
+  font-size: 15px;
+  color: var(--text);
+  margin: 14px 0 6px;
+}
+
+.md-list {
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+.md-list li {
+  margin-bottom: 4px;
+}
+.md-list li::marker {
+  color: var(--violet);
+}
+
+.md-code {
+  background: rgb(139 92 246 / 12%);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: var(--mono);
+  font-size: 0.86em;
+  color: var(--violet-bright);
+}
+
+.md-pre {
+  background: rgb(0 0 0 / 55%);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-dim);
+  margin: 0 0 10px;
+  white-space: pre;
+}
+
+.md strong {
+  color: var(--text);
+  font-weight: 680;
+}
+.md em {
+  color: var(--text-dim);
 }

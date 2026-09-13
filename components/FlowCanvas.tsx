@@ -35,7 +35,7 @@ const STAGES: FlowStage[] = [
 ];
 
 const TONE: Record<FlowStage["tone"], string> = {
-  cyan: "var(--cyan)",
+  cyan: "var(--violet)",
   magenta: "var(--magenta)",
   violet: "var(--violet)",
 };

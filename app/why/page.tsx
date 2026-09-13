@@ -266,7 +266,7 @@ export default function WhyPage() {
         <h2>At one thousand users and a million receipts</h2>
         <div className="grid-2" style={{ gap: 20 }}>
           <div>
-            <h3 style={{ color: "var(--cyan)" }}>Three questions, deliberately kept apart</h3>
+            <h3 style={{ color: "var(--violet-bright)" }}>Three questions, deliberately kept apart</h3>
             <div className="field">
               <span className="field-key">whose record?</span>
               <span className="field-val">the operator&apos;s index, on subject_ref</span>
@@ -283,7 +283,7 @@ export default function WhyPage() {
             </div>
           </div>
           <div>
-            <h3 style={{ color: "var(--cyan)" }}>What survives a breach of this database</h3>
+            <h3 style={{ color: "var(--violet-bright)" }}>What survives a breach of this database</h3>
             <div className="field">
               <span className="field-key">prompts</span>
               <span className="field-val">not stored</span>
@@ -351,7 +351,7 @@ function Stat({
   small?: boolean;
 }) {
   const colours = {
-    cyan: "var(--cyan)",
+    cyan: "var(--violet)",
     pass: "var(--pass)",
     warn: "var(--warn)",
     violet: "var(--violet)",
@@ -437,7 +437,7 @@ function Rung({
       <span>
         <strong style={{ fontWeight: 640 }}>{name}</strong>
         {current && (
-          <span className="tag" style={{ marginLeft: 8, borderColor: "var(--cyan)", color: "var(--cyan)" }}>
+          <span className="tag" style={{ marginLeft: 8, borderColor: "var(--violet)", color: "var(--violet)" }}>
             you are here
           </span>
         )}
@@ -459,7 +459,7 @@ function Step({
 }) {
   const colours = {
     pass: "var(--pass)",
-    cyan: "var(--cyan)",
+    cyan: "var(--violet)",
     violet: "var(--violet)",
     magenta: "var(--magenta)",
   } as const;

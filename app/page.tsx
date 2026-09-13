@@ -7,6 +7,7 @@ import { assess, type Assurance } from "@/lib/assurance";
 import { AssuranceLadder, VerdictPanel, type VerdictShape } from "@/components/Verdict";
 import { Pipeline, type PipelineData } from "@/components/Pipeline";
 import { FlowCanvas } from "@/components/FlowCanvas";
+import { Markdown } from "@/components/Markdown";
 
 interface InferResponse {
   executionId?: string;
@@ -196,7 +197,7 @@ export default function GatewayPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.22, ease: EASE }}
               >
-                <div style={{ whiteSpace: "pre-wrap" }}>{turn.answer}</div>
+                <Markdown>{turn.answer}</Markdown>
 
                 <div className="receipt-strip">
                   <span
