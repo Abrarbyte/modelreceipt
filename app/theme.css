@@ -1,0 +1,147 @@
+/*
+ * ModelReceipt — theme tokens.
+ *
+ * Three states, following the reference's ThemeModeProvider: an explicit choice
+ * stamps data-theme="light" | "dark" on <html>; "system" stamps nothing and
+ * prefers-color-scheme decides. Light is the base; dark redefines only tokens.
+ *
+ * Colour discipline is unchanged: one accent for interaction, and the three
+ * semantic colours (pass / warn / fail) are reserved for verdict state and never
+ * used decoratively.
+ */
+
+:root {
+  color-scheme: light;
+
+  --bg: #f6f7fb;
+  --bg-deep: #eceef5;
+  --surface: #ffffff;
+  --surface-2: #f2f3f9;
+  --line: #e3e6ef;
+  --line-strong: #c9cfe0;
+
+  --text: #0f1424;
+  --text-dim: #4a536a;
+  --text-faint: #7d879d;
+
+  --accent: #4f46e5;
+  --accent-strong: #4338ca;
+  --accent-soft: #eef0ff;
+  --accent-ink: #ffffff;
+
+  --pass: #15803d;
+  --pass-soft: #e6f6ec;
+  --warn: #b45309;
+  --warn-soft: #fef3e2;
+  --fail: #b91c1c;
+  --fail-soft: #fdeaea;
+
+  --shadow-sm: 0 1px 2px rgb(15 20 36 / 6%), 0 1px 3px rgb(15 20 36 / 4%);
+  --shadow-md: 0 6px 20px rgb(15 20 36 / 8%);
+  --shadow-lg: 0 18px 50px rgb(15 20 36 / 14%);
+  --ring: 0 0 0 3px rgb(79 70 229 / 18%);
+
+  --particle: #6366f1;
+  --beam-from: #4f46e5;
+  --beam-to: #a855f7;
+
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
+
+  --radius: 14px;
+  --radius-sm: 9px;
+
+  /* the reference site's signature curve */
+  --ease-66: cubic-bezier(0.66, 0, 0.01, 1);
+  --ease-out: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --bg: #0b0d14;
+    --bg-deep: #07080e;
+    --surface: #12151f;
+    --surface-2: #171b28;
+    --line: #232838;
+    --line-strong: #323950;
+
+    --text: #eef0f7;
+    --text-dim: #a6adc2;
+    --text-faint: #6f7890;
+
+    --accent: #818cf8;
+    --accent-strong: #a5b4fc;
+    --accent-soft: #1c1f3a;
+    --accent-ink: #0b0d14;
+
+    --pass: #4ade80;
+    --pass-soft: #0f2a1c;
+    --warn: #fbbf24;
+    --warn-soft: #2f2410;
+    --fail: #f87171;
+    --fail-soft: #331416;
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
+    --shadow-md: 0 8px 24px rgb(0 0 0 / 45%);
+    --shadow-lg: 0 20px 60px rgb(0 0 0 / 55%);
+    --ring: 0 0 0 3px rgb(129 140 248 / 25%);
+
+    --particle: #818cf8;
+    --beam-from: #818cf8;
+    --beam-to: #c084fc;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0b0d14;
+  --bg-deep: #07080e;
+  --surface: #12151f;
+  --surface-2: #171b28;
+  --line: #232838;
+  --line-strong: #323950;
+
+  --text: #eef0f7;
+  --text-dim: #a6adc2;
+  --text-faint: #6f7890;
+
+  --accent: #818cf8;
+  --accent-strong: #a5b4fc;
+  --accent-soft: #1c1f3a;
+  --accent-ink: #0b0d14;
+
+  --pass: #4ade80;
+  --pass-soft: #0f2a1c;
+  --warn: #fbbf24;
+  --warn-soft: #2f2410;
+  --fail: #f87171;
+  --fail-soft: #331416;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 45%);
+  --shadow-lg: 0 20px 60px rgb(0 0 0 / 55%);
+  --ring: 0 0 0 3px rgb(129 140 248 / 25%);
+
+  --particle: #818cf8;
+  --beam-from: #818cf8;
+  --beam-to: #c084fc;
+}
+
+/* Legacy aliases so every existing component keeps resolving. */
+:root {
+  --bg-raised: var(--surface);
+  --bg-sunken: var(--surface-2);
+  --line-bright: var(--line-strong);
+  --violet: var(--accent);
+  --violet-bright: var(--accent-strong);
+  --magenta: var(--beam-to);
+  --purple-deep: var(--accent-strong);
+  --accent-dim: var(--accent-soft);
+  --pass-dim: var(--pass-soft);
+  --warn-dim: var(--warn-soft);
+  --fail-dim: var(--fail-soft);
+  --glow-violet: var(--shadow-md);
+}

@@ -1,67 +1,23 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "./globals.css";
-import { Particles } from "@/components/magicui/particles";
+import { Shell } from "@/components/Shell";
+import { THEME_BOOT_SCRIPT } from "@/components/Theme";
 
 export const metadata: Metadata = {
-  title: "ModelReceipt — verifiable receipts for AI inference",
+  title: "ModelReceipt — a receipt for every AI decision",
   description:
-    "You paid for a model. Prove which one you got. Cryptographic, privacy-preserving receipts for every AI inference, built on the CooL SDK.",
+    "Cryptographic, privacy-preserving receipts for every AI decision — which model, what it saw, what it produced — verifiable by anyone, offline. Built on the CooL SDK.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Apply the stored theme before first paint so there is no flash. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+      </head>
       <body>
-        {/*
-          Drifting particle field behind everything. Given a fixed, negative
-          z-index container so it never intercepts a click and never enters the
-          layout — the page above it is unaffected.
-        */}
-        <Particles
-          className="pointer-events-none fixed inset-0 -z-10"
-          quantity={190}
-          ease={60}
-          color="#a78bfa"
-          size={1.1}
-          staticity={30}
-          refresh={false}
-        />
-        <header className="site-header">
-          <Link href="/" className="brand">
-            <span className="brand-mark">▣</span> ModelReceipt
-          </Link>
-          <nav>
-            <Link href="/">Gateway</Link>
-            <Link href="/decisions">Decisions</Link>
-            <Link href="/vehicle">Vehicle</Link>
-            <Link href="/verify">Verify</Link>
-            <Link href="/log">Log</Link>
-            <Link href="/compliance">Compliance</Link>
-            <Link href="/audit">Audit</Link>
-            <Link href="/why">Why this</Link>
-            <Link href="/how-it-works">How it works</Link>
-            <a
-              href="https://github.com/Northwind-Cipher/cool-sdk"
-              target="_blank"
-              rel="noreferrer"
-            >
-              CooL SDK ↗
-            </a>
-          </nav>
-        </header>
-        <main>{children}</main>
-        <footer className="site-footer">
-          <p>
-            Receipts are produced by the{" "}
-            <a href="https://github.com/Northwind-Cipher/cool-sdk" target="_blank" rel="noreferrer">
-              CooL SDK
-            </a>{" "}
-            (<code>cool-nwc</code>) and are verifiable offline with{" "}
-            <code>npx cool-nwc verify receipt.json</code> — no account, and no trust in this
-            deployment required.
-          </p>
-        </footer>
+        <Shell>{children}</Shell>
       </body>
     </html>
   );

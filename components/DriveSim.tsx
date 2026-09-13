@@ -65,12 +65,12 @@ interface World {
 
 const LANES = 3;
 const ACTION_COLOUR: Record<DrivingDecision["action"], string> = {
-  CONTINUE: "#3ef0a0",
-  SLOW: "#ffc24b",
-  BRAKE_HARD: "#ff4d6d",
-  STEER_AVOID: "#ffc24b",
-  HAND_OVER: "#ffc24b",
-  YIELD_TO_DRIVER: "#c026d3",
+  CONTINUE: "var(--pass)",
+  SLOW: "var(--warn)",
+  BRAKE_HARD: "var(--fail)",
+  STEER_AVOID: "var(--warn)",
+  HAND_OVER: "var(--warn)",
+  YIELD_TO_DRIVER: "var(--beam-to)",
 };
 
 export function DriveSim({
@@ -449,18 +449,18 @@ function draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, w: World
     if (y < -40 || y > H + 40) continue;
     const x = o.lane * laneW + laneW / 2;
     if (o.type === "barrier") {
-      ctx.fillStyle = "#ff4d6d";
+      ctx.fillStyle = "#f87171";
       ctx.fillRect(x - laneW * 0.42, y - 8, laneW * 0.84, 16);
-      ctx.fillStyle = "#ffc24b";
+      ctx.fillStyle = "#fbbf24";
       for (let s = 0; s < 4; s++) ctx.fillRect(x - laneW * 0.42 + s * (laneW * 0.84 / 4), y - 8, laneW * 0.84 / 8, 16);
     } else {
-      drawCar(ctx, x, y, "#b3a8d6", "#7a6ea6");
+      drawCar(ctx, x, y, "#a6adc2", "#6f7890");
     }
   }
 
   // ego car
   const ex = w.lane * laneW + laneW / 2;
-  drawCar(ctx, ex, egoY, w.crashed ? "#ff4d6d" : "#8b5cf6", w.crashed ? "#ff4d6d" : "#c026d3", true);
+  drawCar(ctx, ex, egoY, w.crashed ? "#f87171" : "#818cf8", w.crashed ? "#f87171" : "#c084fc", true);
 
   // sensor cone
   if (!w.crashed) {

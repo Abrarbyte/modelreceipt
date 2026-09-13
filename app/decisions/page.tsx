@@ -185,7 +185,7 @@ export default function DecisionsPage() {
 
         {/* ---------- decision + receipt ---------- */}
         <div className="panel" style={{ position: "relative", overflow: "hidden" }}>
-          {verdict?.ok && <BorderBeam size={220} duration={9} colorFrom="#8b5cf6" colorTo="#c026d3" />}
+          {verdict?.ok && <BorderBeam size={220} duration={9} colorFrom="var(--beam-from)" colorTo="var(--beam-to)" />}
           <h2>Decision</h2>
           {!result && !busy && (
             <p className="note">

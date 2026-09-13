@@ -26,18 +26,18 @@ export function ArchDiagram() {
       >
         <defs>
           <linearGradient id="wire" x1="0" x2="1">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#c026d3" stopOpacity="0.8" />
+            <stop offset="0%" stopColor="var(--beam-from)" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="var(--beam-to)" stopOpacity="0.8" />
           </linearGradient>
           <linearGradient id="wire2" x1="0" x2="1">
-            <stop offset="0%" stopColor="#c026d3" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.8" />
+            <stop offset="0%" stopColor="var(--beam-to)" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="var(--accent-strong)" stopOpacity="0.8" />
           </linearGradient>
           <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M0,0 L10,5 L0,10 z" fill="#8b5cf6" />
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--beam-from)" />
           </marker>
           <marker id="arrowMag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M0,0 L10,5 L0,10 z" fill="#c026d3" />
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--beam-to)" />
           </marker>
         </defs>
 
@@ -49,11 +49,11 @@ export function ArchDiagram() {
         {/* the privacy boundary */}
         <motion.line
           x1={336} y1={40} x2={336} y2={410}
-          stroke="#c026d3" strokeWidth={1.5} strokeDasharray="5 6" opacity={0.6}
+          stroke="var(--beam-to)" strokeWidth={1.5} strokeDasharray="5 6" opacity={0.6}
           initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
           transition={{ duration: 0.7, ease: EASE }}
         />
-        <text x={340} y={404} fill="#c026d3" fontSize={9.5} fontFamily="var(--mono)">
+        <text x={340} y={404} fill="var(--beam-to)" fontSize={9.5} fontFamily="var(--mono)">
           plaintext never crosses this line →
         </text>
 
@@ -108,18 +108,18 @@ export function ArchDiagram() {
           initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
           transition={{ duration: 0.7, delay: 0.55, ease: EASE }}
         />
-        <text x={620} y={128} fill="#c026d3" fontSize={10} fontFamily="var(--mono)">
+        <text x={620} y={128} fill="var(--beam-to)" fontSize={10} fontFamily="var(--mono)">
           receipt (~15 KB)
         </text>
 
         {/* footnote */}
-        <text x={356} y={340} fill="#7a6ea6" fontSize={10.5}>
+        <text x={356} y={340} fill="var(--text-faint)" fontSize={10.5}>
           What the database holds: 32-byte Merkle leaves, receipts, and keyed
         </text>
-        <text x={356} y={356} fill="#7a6ea6" fontSize={10.5}>
+        <text x={356} y={356} fill="var(--text-faint)" fontSize={10.5}>
           subject references. No prompts. No completions. No identifiers.
         </text>
-        <text x={356} y={378} fill="#ffc24b" fontSize={10.5}>
+        <text x={356} y={378} fill="var(--warn)" fontSize={10.5}>
           On this deployment the TEE is simulated — and every receipt says so.
         </text>
       </svg>
@@ -129,7 +129,7 @@ export function ArchDiagram() {
 
 function Lane({ x, label }: { x: number; label: string }) {
   return (
-    <text x={x} y={30} fill="#7a6ea6" fontSize={10.5} fontFamily="var(--mono)" letterSpacing="1.6">
+    <text x={x} y={30} fill="var(--text-faint)" fontSize={10.5} fontFamily="var(--mono)" letterSpacing="1.6">
       {label}
     </text>
   );
@@ -155,10 +155,10 @@ function Box({
   delay?: number;
 }) {
   const colours = {
-    cyan: "#8b5cf6",
-    magenta: "#c026d3",
-    violet: "#7c3aed",
-    pass: "#3ef0a0",
+    cyan: "var(--beam-from)",
+    magenta: "var(--beam-to)",
+    violet: "var(--accent-strong)",
+    pass: "var(--pass)",
   } as const;
   const colour = colours[tone];
   return (
@@ -174,7 +174,7 @@ function Box({
       <text x={x + 12} y={y + 19} fill={colour} fontSize={12} fontWeight={650} fontFamily="var(--mono)">
         {title}
       </text>
-      <text x={x + 12} y={y + 34} fill="#b3a8d6" fontSize={10}>
+      <text x={x + 12} y={y + 34} fill="var(--text-dim)" fontSize={10}>
         {sub}
       </text>
     </motion.g>

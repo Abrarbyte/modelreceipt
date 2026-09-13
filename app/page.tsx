@@ -1,464 +1,186 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "motion/react";
-import { assess, type Assurance } from "@/lib/assurance";
-import { AssuranceLadder, VerdictPanel, type VerdictShape } from "@/components/Verdict";
-import { Pipeline, type PipelineData } from "@/components/Pipeline";
 import { FlowCanvas } from "@/components/FlowCanvas";
-import { Markdown } from "@/components/Markdown";
-import { AuroraText } from "@/components/magicui/aurora-text";
-import { BorderBeam } from "@/components/magicui/border-beam";
+import { Reveal, Scramble } from "@/components/Reveal";
+import { NumberTicker } from "@/components/magicui/number-ticker";
 
-interface InferResponse {
-  executionId?: string;
-  answer: string;
-  model: string;
-  provider: string;
-  precision: string;
-  latencyMs: number;
-  simulatedModel: boolean;
-  receipt: Record<string, unknown>;
-  log: { treeSize: number; leafIndex: number | null; durable: boolean };
+interface Live {
+  size: number | null;
+  durable: boolean;
+  covered: number | null;
+  obligations: number | null;
+  model: string | null;
 }
 
-interface Turn {
-  id: string;
-  prompt: string;
-  answer?: string;
-  result?: InferResponse;
-  verdict?: VerdictShape;
-  assurance?: Assurance | null;
-  error?: string;
-  pending: boolean;
-}
+export default function HomePage() {
+  const [live, setLive] = useState<Live>({ size: null, durable: false, covered: null, obligations: null, model: null });
 
-const EASE = [0.2, 0, 0.2, 1] as const;
-
-/**
- * A stable pseudonymous identity for this browser.
- *
- * Deliberately not a login. The point being demonstrated is that an operator
- * can answer "what did this user ask?" without the identifier ever being
- * stored - so the demo needs an identifier that is stable and meaningless,
- * which is exactly what this is.
- */
-function useDemoIdentity() {
-  const [subject, setSubject] = useState("");
-  const [sessionId, setSessionId] = useState("");
   useEffect(() => {
-    try {
-      let existing = localStorage.getItem("mr-subject");
-      if (!existing) {
-        existing = `demo-user-${Math.random().toString(36).slice(2, 8)}`;
-        localStorage.setItem("mr-subject", existing);
+    (async () => {
+      try {
+        const [log, compliance] = await Promise.all([
+          fetch("/api/log").then((r) => r.json()),
+          fetch("/api/compliance").then((r) => r.json()),
+        ]);
+        setLive({
+          size: log.size ?? null,
+          durable: Boolean(log.durable),
+          covered: compliance.coverage?.filter((c: { covered: boolean }) => c.covered).length ?? null,
+          obligations: compliance.coverage?.length ?? null,
+          model: log.provider?.model ?? null,
+        });
+      } catch {
+        /* dashes stay */
       }
-      setSubject(existing);
-    } catch {
-      setSubject("demo-user-anonymous");
-    }
-    setSessionId(`sess-${Date.now().toString(36)}`);
+    })();
   }, []);
-  return { subject, sessionId };
-}
-
-export default function GatewayPage() {
-  const [input, setInput] = useState("");
-  const [turns, setTurns] = useState<Turn[]>([]);
-  const [busy, setBusy] = useState(false);
-  const [executionId, setExecutionId] = useState<string | undefined>();
-  const [openReceipt, setOpenReceipt] = useState<string | null>(null);
-  const { subject, sessionId } = useDemoIdentity();
-  const endRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [turns]);
-
-  async function send() {
-    const prompt = input.trim();
-    if (!prompt || busy) return;
-    const id = `t-${Date.now()}`;
-    setInput("");
-    setBusy(true);
-    setTurns((prev) => [...prev, { id, prompt, pending: true }]);
-
-    try {
-      const response = await fetch("/api/infer", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ prompt, subject, sessionId, executionId }),
-      });
-      const data: InferResponse & { error?: string } = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "request failed");
-
-      // Thread later turns onto the same execution id, so a conversation is one
-      // linked chain of receipts rather than unrelated records.
-      if (data.executionId && !executionId) setExecutionId(data.executionId);
-
-      const verifyResponse = await fetch("/api/verify", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ evidence: data.receipt }),
-      });
-      const { verdict } = await verifyResponse.json();
-
-      setTurns((prev) =>
-        prev.map((turn) =>
-          turn.id === id
-            ? {
-                ...turn,
-                pending: false,
-                answer: data.answer,
-                result: data,
-                verdict,
-                assurance: assess(verdict, data.receipt as never),
-              }
-            : turn,
-        ),
-      );
-    } catch (error) {
-      setTurns((prev) =>
-        prev.map((turn) =>
-          turn.id === id ? { ...turn, pending: false, error: (error as Error).message } : turn,
-        ),
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  const latest = [...turns].reverse().find((turn) => turn.result && turn.verdict);
 
   return (
-    <div className="chat-page">
-      <div style={{ textAlign: "center", marginBottom: 24 }}>
-        <div className="kicker" style={{ marginBottom: 8 }}>
-          Verifiable inference gateway
-        </div>
-        <h1 style={{ marginBottom: 10 }}>
-          Every answer comes with a{" "}
-          <AuroraText colors={["#8b5cf6", "#c026d3", "#3a0ca3", "#a855f7"]} speed={1.2}>
-            receipt
-          </AuroraText>
-          .
+    <div>
+      {/* ---------- hero ---------- */}
+      <div style={{ textAlign: "center", maxWidth: 780, margin: "10px auto 30px" }}>
+        <div className="kicker">Built on the CooL SDK</div>
+        <h1>
+          <Scramble text="A receipt for every" />{" "}
+          <span className="glow">
+            <Scramble text="AI decision." startDelayMs={500} />
+          </span>
         </h1>
-        <p className="lede" style={{ margin: "0 auto" }}>
-          Ask anything. The model answers, and that answer is sealed into a cryptographic receipt
-          naming the model, version and deployment that produced it — without storing your prompt
-          or the reply. Verifiable by anyone, offline.
+        <p className="lede" style={{ margin: "0 auto 22px" }}>
+          When an AI answers, approves, or steers, ModelReceipt seals proof of <strong>which model
+          version</strong> decided, <strong>what it saw</strong> and <strong>what it produced</strong>{" "}
+          — without storing the data. Anyone can verify it. Offline. No account.
         </p>
+        <div className="row" style={{ justifyContent: "center" }}>
+          <Link href="/chat"><button>Try it now</button></Link>
+          <Link href="/verify"><button className="ghost">Try to forge one</button></Link>
+        </div>
       </div>
 
-      <div style={{ marginBottom: 22 }}>
-        <FlowCanvas liveRecordId={latest?.result?.receipt ? String((latest.result.receipt as { record?: { record_id?: string } }).record?.record_id ?? "") : null} />
-      </div>
+      {/* ---------- live flow ---------- */}
+      <Reveal>
+        <div className="kicker" style={{ textAlign: "center" }}>How it works — live</div>
+        <FlowCanvas />
+      </Reveal>
 
-      <div className="chat-thread">
-        {turns.length === 0 && (
-          <div className="chat-empty">
-            <p className="note" style={{ margin: 0 }}>
-              Try: <em>&quot;Should a borrower with 61% debt-to-income be approved?&quot;</em>
-              <br />
-              <br />
-              Each reply carries its own receipt, and the whole conversation shares one execution
-              id — so a multi-turn exchange becomes a linked chain of evidence rather than
-              unrelated records.
-            </p>
+      {/* ---------- what it is ---------- */}
+      <Reveal delay={60}>
+        <div style={{ marginTop: 34 }}>
+          <div className="kicker">What it is</div>
+          <h2 style={{ fontSize: 24, marginBottom: 14 }}>Three guarantees, in plain words.</h2>
+          <div className="steps">
+            <div className="step">
+              <div className="step-num">1</div>
+              <h3>It cannot be quietly changed</h3>
+              <p>Every receipt is signed. Edit one character and verification fails — and it stays failed, because nobody can re-sign it without the private key.</p>
+            </div>
+            <div className="step">
+              <div className="step-num">2</div>
+              <h3>It reveals nothing</h3>
+              <p>The prompt and the answer are hashed with a random salt and discarded. The receipt proves they existed without containing them.</p>
+            </div>
+            <div className="step">
+              <div className="step-num">3</div>
+              <h3>Anyone can check it</h3>
+              <p>A customer, an auditor, a court. Offline, in one command, with no trust in the company that issued it — or in us.</p>
+            </div>
           </div>
-        )}
+        </div>
+      </Reveal>
 
-        {turns.map((turn) => (
-          <div key={turn.id}>
-            <motion.div
-              className="bubble user"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: EASE }}
-            >
-              {turn.prompt}
-            </motion.div>
+      {/* ---------- try it ---------- */}
+      <Reveal delay={80}>
+        <div style={{ marginTop: 34 }}>
+          <div className="kicker">Try it live</div>
+          <h2 style={{ fontSize: 24, marginBottom: 6 }}>
+            One question, three places it matters: <em>which model made this decision?</em>
+          </h2>
+          <p className="note" style={{ marginBottom: 14, fontSize: 13.5 }}>
+            Same receipt, same verifier, same SDK — applied to a chat answer, a loan decision and a
+            driving decision. Every one is live.
+          </p>
+          <div className="apps-row">
+            <Link className="app-card" href="/chat">
+              <div className="app-num mono">01</div>
+              <div className="feature-title">Chat</div>
+              <div className="feature-body">Ask a real model anything. Every reply carries its receipt inline — click &quot;Show proof&quot; to see how it was sealed.</div>
+            </Link>
+            <Link className="app-card" href="/decisions">
+              <div className="app-num mono">02</div>
+              <div className="feature-title">Enterprise decisions</div>
+              <div className="feature-body">Claims, credit, KYC, support — what Lemonade, Allianz and JPMorgan actually run. Edit the data, decide again, watch the receipt change.</div>
+            </Link>
+            <Link className="app-card" href="/vehicle">
+              <div className="app-num mono">03</div>
+              <div className="feature-title">Autonomous vehicle</div>
+              <div className="feature-body">Drive it with the arrow keys. Crash it. Then investigate — every decision was sealed before the impact.</div>
+            </Link>
+          </div>
+        </div>
+      </Reveal>
 
-            {turn.pending && (
-              <motion.div
-                className="bubble assistant"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                <SealingDots />
-              </motion.div>
-            )}
+      {/* ---------- check it ---------- */}
+      <Reveal delay={100}>
+        <div style={{ marginTop: 34 }}>
+          <div className="kicker">Check it</div>
+          <h2 style={{ fontSize: 24, marginBottom: 14 }}>Then see it hold up.</h2>
+          <div className="feature-grid">
+            <Link className="feature" href="/verify">
+              <div className="feature-title">Verify — and try to forge</div>
+              <div className="feature-body">Four single-character attacks. They fail differently; the pattern names the forgery.</div>
+            </Link>
+            <Link className="feature" href="/log">
+              <div className="feature-title">The transparency log</div>
+              <div className="feature-body">One growing Merkle tree with consistency proofs — the part of the SDK this project had to build.</div>
+            </Link>
+            <Link className="feature" href="/compliance">
+              <div className="feature-title">Obligation coverage</div>
+              <div className="feature-body">Computed from real receipts, never asserted. Gaps are reported with what would close them.</div>
+            </Link>
+            <Link className="feature" href="/audit">
+              <div className="feature-title">Who asked what</div>
+              <div className="feature-body">Look up a user&apos;s history — without their identifier ever being stored.</div>
+            </Link>
+          </div>
+        </div>
+      </Reveal>
 
-            {turn.error && (
-              <div className="bubble assistant" style={{ color: "var(--fail)" }}>
-                {turn.error}
-              </div>
-            )}
-
-            {turn.answer && (
-              <motion.div
-                className="bubble assistant"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.22, ease: EASE }}
-                style={{ position: "relative", overflow: "hidden" }}
-              >
-                {/* The beam marks a reply that carries a verified receipt —
-                    decoration earning its place by meaning something. */}
-                {turn.verdict?.ok && (
-                  <BorderBeam
-                    size={190}
-                    duration={9}
-                    colorFrom="#8b5cf6"
-                    colorTo="#c026d3"
-                  />
-                )}
-                <Markdown>{turn.answer}</Markdown>
-
-                <div className="receipt-strip">
-                  <span
-                    className={`level-chip ${turn.assurance?.tone ?? "floor"}`}
-                    style={{ fontSize: 11 }}
-                  >
-                    {turn.verdict?.ok ? "VERIFIED" : "FAILED"} · {turn.assurance?.level}
-                  </span>
-                  <span className="tag">{turn.result?.model}</span>
-                  <span className="tag">
-                    leaf #{turn.result?.log.leafIndex} / {turn.result?.log.treeSize}
-                  </span>
-                  <span className="tag">{turn.result?.latencyMs} ms</span>
-                  <button
-                    className="ghost"
-                    style={{ padding: "3px 10px", fontSize: 11.5 }}
-                    onClick={() => setOpenReceipt(openReceipt === turn.id ? null : turn.id)}
-                  >
-                    {openReceipt === turn.id ? "Hide proof" : "Show proof"}
-                  </button>
+      {/* ---------- live numbers ---------- */}
+      <Reveal delay={120}>
+        <div className="panel" style={{ marginTop: 34 }}>
+          <div className="row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div className="stat-row">
+              <div>
+                <div className="stat-num" style={{ color: "var(--accent)" }}>
+                  {live.size !== null ? <NumberTicker value={live.size} /> : "—"}
                 </div>
-
-                <AnimatePresence>
-                  {openReceipt === turn.id && turn.result && turn.verdict && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.22, ease: EASE }}
-                      style={{ overflow: "hidden" }}
-                    >
-                      <div style={{ paddingTop: 16 }}>
-                        <Pipeline data={pipelineFrom(turn)} />
-                        <div style={{ marginTop: 18 }}>
-                          <VerdictPanel verdict={turn.verdict} assurance={turn.assurance} />
-                        </div>
-                        <details style={{ marginTop: 14 }}>
-                          <summary className="note" style={{ cursor: "pointer" }}>
-                            Raw receipt JSON
-                          </summary>
-                          <pre className="json" style={{ marginTop: 8 }}>
-                            {JSON.stringify(turn.result.receipt, null, 2)}
-                          </pre>
-                        </details>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            )}
+                <div className="stat-label">receipts in one tree</div>
+              </div>
+              <div>
+                <div className="stat-num" style={{ color: live.durable ? "var(--pass)" : "var(--warn)" }}>
+                  {live.durable ? "durable" : "in-memory"}
+                </div>
+                <div className="stat-label">log backend</div>
+              </div>
+              <div>
+                <div className="stat-num" style={{ color: "var(--pass)" }}>
+                  {live.covered !== null ? `${live.covered}/${live.obligations}` : "—"}
+                </div>
+                <div className="stat-label">obligations covered</div>
+              </div>
+              <div>
+                <div className="stat-num" style={{ fontSize: 15, paddingTop: 10 }}>{live.model ?? "demo model"}</div>
+                <div className="stat-label">model serving</div>
+              </div>
+            </div>
+            <Link href="/why" className="note" style={{ paddingTop: 6 }}>
+              The whole system, with diagrams →
+            </Link>
           </div>
-        ))}
-        <div ref={endRef} />
-      </div>
-
-      <div className="composer">
-        <textarea
-          rows={2}
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
-              void send();
-            }
-          }}
-          placeholder="Ask the model anything…   (Enter to send · Shift+Enter for a new line)"
-        />
-        <button onClick={send} disabled={busy || !input.trim()}>
-          {busy ? "Sealing…" : "Send"}
-        </button>
-      </div>
-
-      <div className="row" style={{ justifyContent: "center", marginTop: 12 }}>
-        <span className="note" style={{ fontSize: 11.5, textAlign: "center" }}>
-          you are <code>{subject || "…"}</code> · session <code>{sessionId || "…"}</code>
-          {subject && (
-            <>
-              {" · "}
-              <Link href={`/audit?subject=${encodeURIComponent(subject)}`}>
-                look up everything this user asked →
-              </Link>
-            </>
-          )}
-        </span>
-      </div>
-
-      {latest?.assurance && (
-        <motion.div
-          className="panel"
-          style={{ marginTop: 24 }}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, ease: EASE }}
-        >
-          <AssuranceLadder assurance={latest.assurance} />
-        </motion.div>
-      )}
-
-      <div className="panel" style={{ marginTop: 20 }}>
-        <div className="kicker">ModelReceipt, applied</div>
-        <h2 style={{ marginBottom: 6 }}>
-          One question, three places it matters: <em>which model made this decision, and can anyone verify it?</em>
-        </h2>
-        <p className="note" style={{ marginBottom: 14 }}>
-          A chat answer. A loan decision. A driving decision. Same receipt, same verifier, same SDK
-          underneath. Every one of these is live — use it, then try to break it.
-        </p>
-        <div className="apps-row">
-          <Link className="app-card" href="/">
-            <div className="app-num mono">01</div>
-            <div className="feature-title">Chat</div>
-            <div className="feature-body">Ask anything above. Every reply carries its receipt inline.</div>
-          </Link>
-          <Link className="app-card" href="/decisions">
-            <div className="app-num mono">02</div>
-            <div className="feature-title">Enterprise decisions</div>
-            <div className="feature-body">Claims, credit, KYC, support — what Lemonade, Allianz and JPMorgan actually run.</div>
-          </Link>
-          <Link className="app-card" href="/vehicle">
-            <div className="app-num mono">03</div>
-            <div className="feature-title">Autonomous vehicle</div>
-            <div className="feature-body">Drive it, crash it, investigate it. The evidence was sealed before the crash.</div>
-          </Link>
         </div>
-
-        <h2 style={{ marginTop: 26 }}>Everything else this gateway does</h2>
-        <div className="feature-grid">
-          <Feature
-            href="/verify"
-            title="Try to forge a receipt"
-            body="Four single-character attacks. They fail differently, and the failure pattern names the class of forgery."
-          />
-          <Feature
-            href="/log"
-            title="One tree, not a thousand"
-            body="A durable RFC 6962 log that survives serverless cold starts, drawn as the lopsided tree it really is."
-          />
-          <Feature
-            href="/compliance"
-            title="Obligation coverage"
-            body="Computed from real receipts, never asserted. Gaps are reported with the field that would close them."
-          />
-          <Feature
-            href="/audit"
-            title="Who asked what"
-            body="Look up a user's whole history by pseudonymous reference — without their identifier ever being stored."
-          />
-          <Feature
-            href="/why"
-            title="The whole system"
-            body="Architecture diagram, every capability, the assurance ladder, and what comes next — with live numbers from this deployment."
-          />
-          <Feature
-            href="/how-it-works"
-            title="Architecture & honest limits"
-            body="Including what this cannot prove, and why every receipt here is marked simulated."
-          />
-          <Feature
-            href="https://github.com/Abrarbyte/modelreceipt#readme"
-            title="Drop-in proxy & Python client"
-            body="Change one line of your own app's base URL, in any language, and keep your own provider key."
-            external
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function pipelineFrom(turn: Turn): PipelineData {
-  const receipt = turn.result?.receipt as
-    | {
-        record?: {
-          record_id?: string;
-          signature?: { alg?: string; key_id?: string };
-          event?: { commitments?: Record<string, string> };
-        };
-      }
-    | undefined;
-  return {
-    promptChars: turn.prompt.length,
-    outputChars: turn.answer?.length ?? 0,
-    inputCommitment: receipt?.record?.event?.commitments?.input,
-    outputCommitment: receipt?.record?.event?.commitments?.output,
-    signatureAlg: receipt?.record?.signature?.alg,
-    keyId: receipt?.record?.signature?.key_id,
-    leafIndex: turn.result?.log.leafIndex,
-    treeSize: turn.result?.log.treeSize,
-    recordId: receipt?.record?.record_id,
-    durable: turn.result?.log.durable,
-  };
-}
-
-function Feature({
-  href,
-  title,
-  body,
-  external,
-}: {
-  href: string;
-  title: string;
-  body: string;
-  external?: boolean;
-}) {
-  const inner = (
-    <>
-      <div className="feature-title">{title}</div>
-      <div className="feature-body">{body}</div>
-    </>
-  );
-  return external ? (
-    <a className="feature" href={href} target="_blank" rel="noreferrer">
-      {inner}
-    </a>
-  ) : (
-    <Link className="feature" href={href}>
-      {inner}
-    </Link>
-  );
-}
-
-/**
- * Stage labels while the request is in flight.
- *
- * These are the stages the request genuinely passes through, cycling rather
- * than filling - because there is no progress signal to report and a bar that
- * pretended otherwise would be the one dishonest pixel on the page.
- */
-function SealingDots() {
-  const steps = ["calling model", "hashing prompt + answer", "signing", "appending to log"];
-  return (
-    <div className="note" style={{ fontFamily: "var(--mono)", fontSize: 12 }}>
-      {steps.map((step, index) => (
-        <motion.span
-          key={step}
-          initial={{ opacity: 0.25 }}
-          animate={{ opacity: [0.25, 1, 0.25] }}
-          transition={{ duration: 1.4, repeat: Infinity, delay: index * 0.28 }}
-          style={{ marginRight: 14, display: "inline-block" }}
-        >
-          {step}
-        </motion.span>
-      ))}
+      </Reveal>
     </div>
   );
 }
