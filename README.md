@@ -13,6 +13,64 @@ Try it in 30 seconds — no signup:
 
 ---
 
+## In one sentence
+
+**A model decides → CooL seals a receipt → anyone can verify it.**
+
+Everything on the site is either a place to make that happen, or a way to check that it held.
+
+## The project, simply
+
+### What a visitor sees
+
+```
+Home ............ what it is, how it works, where to try it
+│
+├─ Try it
+│   ├─ Chat ......... ask a real model, get a receipt with every reply
+│   ├─ Decisions .... insurance claim / loan / KYC / support — real enterprise decisions
+│   └─ Vehicle ...... drive a car, crash it, investigate the sealed evidence
+│
+├─ Check it
+│   ├─ Verify ....... paste a receipt, try four ways to forge it
+│   ├─ Log .......... the Merkle tree, growing, with consistency proofs
+│   ├─ Compliance ... which regulations the receipts satisfy (computed, not claimed)
+│   └─ Audit ........ look up a user's history without storing who they are
+│
+└─ Learn
+    ├─ About ........ the whole system with diagrams and live numbers
+    └─ How it works . architecture and honest limits
+```
+
+A three-step introduction opens on first visit and can be reopened from **? Tour** in the header. Light, dark and system themes are toggled in the header; `?theme=light` or `?theme=dark` on any URL forces one.
+
+### What the code is
+
+```
+lib/
+  cool.ts ........... the CooL SDK wrapper — seal(), sealChange()
+  durable-log.ts .... the Postgres Merkle log — the part this project had to build
+  assurance.ts ...... L0–L3 grading, never softer than CooL's own verdict
+  identity.ts ....... HMAC user references — search without storing identifiers
+  scenarios.ts ...... the four enterprise decisions
+  vehicle.ts ........ the driving policy
+  model.ts .......... Groq / OpenAI / OpenRouter, with a labelled demo fallback
+
+app/api/
+  infer, decide, drive-event ... seal a chat / a decision / a driving event
+  verify, disclose ............ check a receipt, reveal one field
+  log, compliance, receipts ... read the tree, obligation coverage, history
+  change ...................... seal a governed model update with approvers
+  badge ....................... live SVG verdict, re-verified per request
+  v1/chat/completions ......... OpenAI-compatible proxy — one line to adopt
+
+app/              one folder per page, as listed above
+components/       Tour, Theme, DriveSim, FlowCanvas, MerkleTree, Verdict, …
+clients/python/   pip install modelreceipt — an HTTP client, not a crypto port
+```
+
+---
+
 ## 1. The problem
 
 AI inference is bought by **model name**. The model behind that name changes silently, and nobody can prove what actually served a request.
