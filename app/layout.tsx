@@ -20,10 +20,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         */}
         <Particles
           className="pointer-events-none fixed inset-0 -z-10"
-          quantity={110}
-          ease={70}
-          color="#8b5cf6"
-          staticity={38}
+          quantity={190}
+          ease={60}
+          color="#a78bfa"
+          size={1.1}
+          staticity={30}
           refresh={false}
         />
         <header className="site-header">
