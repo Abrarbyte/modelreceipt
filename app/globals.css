@@ -1164,3 +1164,38 @@ table.log tr:hover td {
 .md em {
   color: var(--text-dim);
 }
+
+/* ---------- decision scenarios ---------- */
+
+.scenario-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.scenario-tab {
+  background: rgb(139 92 246 / 6%);
+  border: 1px solid var(--line-bright);
+  color: var(--text-dim);
+  box-shadow: none;
+  font-weight: 600;
+  padding: 9px 16px;
+  font-size: 13px;
+}
+.scenario-tab:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--violet);
+  transform: none;
+  box-shadow: 0 0 16px rgb(139 92 246 / 16%);
+  filter: none;
+}
+.scenario-tab.active {
+  background: linear-gradient(96deg, rgb(139 92 246 / 26%), rgb(58 12 163 / 34%));
+  border-color: var(--violet);
+  color: var(--text);
+  box-shadow: 0 0 20px rgb(139 92 246 / 22%);
+}
+
+.field input[type="text"] {
+  width: 100%;
+}

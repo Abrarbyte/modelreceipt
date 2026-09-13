@@ -33,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </Link>
           <nav>
             <Link href="/">Gateway</Link>
+            <Link href="/decisions">Decisions</Link>
             <Link href="/verify">Verify</Link>
             <Link href="/log">Log</Link>
             <Link href="/compliance">Compliance</Link>

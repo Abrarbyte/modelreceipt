@@ -318,6 +318,11 @@ export default function GatewayPage() {
         <h2>Everything this gateway does</h2>
         <div className="feature-grid">
           <Feature
+            href="/decisions"
+            title="What production AI actually does"
+            body="Claims, credit, KYC, support — real enterprise decisions about people, sealed with a receipt. Structured input, not chat."
+          />
+          <Feature
             href="/verify"
             title="Try to forge a receipt"
             body="Four single-character attacks. They fail differently, and the failure pattern names the class of forgery."
