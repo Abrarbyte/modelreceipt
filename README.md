@@ -95,8 +95,14 @@ One of the seven built-in obligations states this project's thesis almost verbat
 The page also seals **governed model changes** via `cool.change()` — because silent substitution is, precisely, an *ungoverned change*. A change record commits what moved, from what to what, who made it and who approved it, with before/after values as salted hashes. Three oversight obligations (EU AI Act Art. 14, Art. 15, SOC 2 CC7.2) can only be satisfied by records of that kind; with an approved change record present, all seven report covered.
 
 ### Python client — `clients/python`
+
+The CooL SDK is Node-only, and most AI code is Python. The tempting fix is to port the SDK; that is the wrong trade, and it fails invisibly. Porting ML-DSA-65, canonical CBOR and RFC 6962 Merkle proofs is a large amount of security-critical code, and a subtly wrong port produces receipts that look right and verify nowhere. A stubbed post-quantum signature is worse still — it makes "post-quantum" a label rather than a property.
+
+So the real SDK stays where it runs. Python talks to the Node gateway over HTTP and receives receipts the genuine `cool-nwc` produced — which anyone, in any language, can verify offline.
+
 ```bash
 pip install -e clients/python
+python clients/python/quickstart.py        # runnable end-to-end demo
 ```
 ```python
 from modelreceipt import ModelReceipt

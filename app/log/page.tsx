@@ -95,6 +95,44 @@ export default function LogPage() {
             instance; consistency proofs are unavailable.
           </p>
         )}
+
+        {status?.durable && (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: EASE }}
+            style={{
+              marginTop: 16,
+              padding: "14px 16px",
+              borderRadius: "var(--radius-sm)",
+              border: "1px solid var(--accent)",
+              background: "color-mix(in srgb, var(--accent) 8%, var(--bg-sunken))",
+            }}
+          >
+            <div className="row" style={{ gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
+              <span className="mono" style={{ color: "var(--fail)", fontSize: 13 }}>
+                stock in-memory log:
+              </span>
+              <span className="mono" style={{ fontSize: 13 }}>
+                {status.size} trees of size 1 · audit paths empty · no consistency proof possible
+              </span>
+            </div>
+            <div className="row" style={{ gap: 10, alignItems: "baseline", marginTop: 6, flexWrap: "wrap" }}>
+              <span className="mono" style={{ color: "var(--pass)", fontSize: 13 }}>
+                this deployment:
+              </span>
+              <span className="mono" style={{ fontSize: 13 }}>
+                1 tree of size {status.size} · real inclusion proofs · consistency verifiable
+              </span>
+            </div>
+            <p className="note" style={{ marginTop: 10, marginBottom: 0 }}>
+              The difference is a <a href="https://github.com/Abrarbyte/modelreceipt/blob/main/lib/durable-log.ts" target="_blank" rel="noreferrer">durable
+              backend</a> for the SDK&apos;s <code>EvidenceLog</code> interface — the seam its own
+              source calls out as unfilled. Every receipt above was sealed by a different
+              serverless invocation, and they all landed in the same tree.
+            </p>
+          </motion.div>
+        )}
       </div>
 
       <div className="grid-2" style={{ marginTop: 20 }}>

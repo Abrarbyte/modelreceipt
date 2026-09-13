@@ -76,6 +76,16 @@ class Receipt:
     record_id: str
     leaf_index: int | None
     tree_size: int | None
+    #: The exact text the gateway committed to as `input`, when it is known.
+    #:
+    #: This matters more than it looks. The chat endpoint commits to the whole
+    #: transcript ("user: ...", "assistant: ..."), not to the bare prompt the
+    #: caller passed, so a caller guessing at the plaintext would fail to open
+    #: its own commitment. Carrying it here makes selective disclosure usable
+    #: instead of a puzzle.
+    committed_input: str | None = None
+    #: The exact text committed as `output`, when it is known.
+    committed_output: str | None = None
 
     def save(self, path: str) -> str:
         """Write the receipt to disk so `cool verify <path>` can check it."""
@@ -165,6 +175,7 @@ class ModelReceipt:
         *,
         model: str = "qwen/qwen3.8-27b",
         api_key: str | None = None,
+        max_tokens: int = 400,
     ) -> tuple[str, Receipt]:
         """
         Make an OpenAI-compatible call through the gateway.
@@ -179,9 +190,13 @@ class ModelReceipt:
             else list(prompt)
         )
         headers = {"authorization": f"Bearer {api_key}"} if api_key else {}
+        # Bound the completion by default. Free provider tiers meter output
+        # tokens per minute, and an unbounded request is rejected outright -
+        # a failure that has nothing to do with evidence and everything to do
+        # with being a well-behaved client.
         data = self._post(
             "/v1/chat/completions",
-            {"model": model, "messages": messages},
+            {"model": model, "messages": messages, "max_tokens": max_tokens},
             headers=headers,
         )
         evidence = data.get("_modelreceipt")
@@ -189,11 +204,16 @@ class ModelReceipt:
             raise ModelReceiptError("gateway response carried no receipt")
         answer = data["choices"][0]["message"]["content"]
         record = evidence.get("record", {})
+        # Mirror exactly what the proxy commits to, so `disclose()` works
+        # without the caller having to reverse-engineer the transcript format.
+        transcript = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
         return answer, Receipt(
             evidence=evidence,
             record_id=record.get("record_id", ""),
             leaf_index=(evidence.get("inclusion") or {}).get("leaf_index"),
             tree_size=(evidence.get("sth") or {}).get("tree_size"),
+            committed_input=transcript,
+            committed_output=answer,
         )
 
     def verify(self, receipt: Receipt | Mapping[str, Any]) -> Verdict:
@@ -216,7 +236,7 @@ class ModelReceipt:
     def disclose(
         self,
         receipt: Receipt | Mapping[str, Any],
-        value: str,
+        value: str | None = None,
         *,
         field: str = "input",
     ) -> bool:
@@ -226,7 +246,18 @@ class ModelReceipt:
         This is how a dispute is settled without handing anyone a database:
         reveal exactly one value, and the salted hash in the receipt either
         matches it or does not.
+
+        Omit `value` to use the text this client saw committed, which is the
+        common case and avoids the caller having to reconstruct a transcript.
         """
+        if value is None:
+            if not isinstance(receipt, Receipt):
+                raise ModelReceiptError("value is required for a raw evidence mapping")
+            value = receipt.committed_output if field == "output" else receipt.committed_input
+            if value is None:
+                raise ModelReceiptError(
+                    f"this receipt did not record the committed {field}; pass the value explicitly"
+                )
         evidence = receipt.evidence if isinstance(receipt, Receipt) else receipt
         data = self._post(
             "/api/disclose", {"evidence": evidence, "field": field, "value": value}
