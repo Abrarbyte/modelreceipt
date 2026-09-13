@@ -30,11 +30,19 @@ function connectionString(): string | undefined {
   const candidates = [
     process.env.DATABASE_URL,
     process.env.POSTGRES_URL,
+    process.env.POSTGRES_URL_NON_POOLING,
     process.env.STORAGE_URL,
     process.env.DATABASE_POSTGRES_URL,
     process.env.NEON_DATABASE_URL,
   ];
-  return candidates.find((value) => typeof value === "string" && value.length > 0);
+  // Require the value to actually look like a Postgres URL. A leftover or
+  // placeholder variable that merely shares a name would otherwise win on
+  // ordering and take the log back to in-memory without anything appearing to
+  // be wrong - the one failure mode worth engineering against here.
+  return candidates.find(
+    (value) =>
+      typeof value === "string" && /^postgres(ql)?:\/\/.+/i.test(value.trim()),
+  );
 }
 
 /** True when a database is configured. Without one the app runs in-memory. */
