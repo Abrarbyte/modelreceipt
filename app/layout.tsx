@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
+import { Particles } from "@/components/magicui/particles";
 
 export const metadata: Metadata = {
   title: "ModelReceipt — verifiable receipts for AI inference",
@@ -12,6 +13,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        {/*
+          Drifting particle field behind everything. Given a fixed, negative
+          z-index container so it never intercepts a click and never enters the
+          layout — the page above it is unaffected.
+        */}
+        <Particles
+          className="pointer-events-none fixed inset-0 -z-10"
+          quantity={110}
+          ease={70}
+          color="#8b5cf6"
+          staticity={38}
+          refresh={false}
+        />
         <header className="site-header">
           <Link href="/" className="brand">
             <span className="brand-mark">▣</span> ModelReceipt

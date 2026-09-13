@@ -8,6 +8,8 @@ import { AssuranceLadder, VerdictPanel, type VerdictShape } from "@/components/V
 import { Pipeline, type PipelineData } from "@/components/Pipeline";
 import { FlowCanvas } from "@/components/FlowCanvas";
 import { Markdown } from "@/components/Markdown";
+import { AuroraText } from "@/components/magicui/aurora-text";
+import { BorderBeam } from "@/components/magicui/border-beam";
 
 interface InferResponse {
   executionId?: string;
@@ -136,7 +138,11 @@ export default function GatewayPage() {
           Verifiable inference gateway
         </div>
         <h1 style={{ marginBottom: 10 }}>
-          Every answer comes with a <span className="glow">receipt</span>.
+          Every answer comes with a{" "}
+          <AuroraText colors={["#8b5cf6", "#c026d3", "#3a0ca3", "#a855f7"]} speed={1.2}>
+            receipt
+          </AuroraText>
+          .
         </h1>
         <p className="lede" style={{ margin: "0 auto" }}>
           Ask anything. The model answers, and that answer is sealed into a cryptographic receipt
@@ -196,7 +202,18 @@ export default function GatewayPage() {
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.22, ease: EASE }}
+                style={{ position: "relative", overflow: "hidden" }}
               >
+                {/* The beam marks a reply that carries a verified receipt —
+                    decoration earning its place by meaning something. */}
+                {turn.verdict?.ok && (
+                  <BorderBeam
+                    size={190}
+                    duration={9}
+                    colorFrom="#8b5cf6"
+                    colorTo="#c026d3"
+                  />
+                )}
                 <Markdown>{turn.answer}</Markdown>
 
                 <div className="receipt-strip">

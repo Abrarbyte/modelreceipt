@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { ArchDiagram } from "@/components/ArchDiagram";
+import { NumberTicker } from "@/components/magicui/number-ticker";
 
 const EASE = [0.2, 0, 0.2, 1] as const;
 
@@ -362,7 +363,9 @@ function Stat({
         className="stat-num"
         style={{ color: colours[tone], fontSize: small ? 15 : undefined, paddingTop: small ? 10 : 0 }}
       >
-        {value ?? "—"}
+        {/* Counts up only for plain numbers; anything else renders as-is,
+            because animating a label like "durable" would be nonsense. */}
+        {typeof value === "number" ? <NumberTicker value={value} /> : (value ?? "—")}
       </div>
       <div className="stat-label">{label}</div>
     </div>

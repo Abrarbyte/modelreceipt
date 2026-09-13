@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { MerkleTree } from "@/components/MerkleTree";
+import { NumberTicker } from "@/components/magicui/number-ticker";
 
 interface LogStatus {
   durable: boolean;
