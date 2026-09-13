@@ -163,7 +163,7 @@ class ModelReceipt:
         self,
         prompt: str | Iterable[Mapping[str, str]],
         *,
-        model: str = "llama-3.3-70b-versatile",
+        model: str = "qwen/qwen3.8-27b",
         api_key: str | None = None,
     ) -> tuple[str, Receipt]:
         """

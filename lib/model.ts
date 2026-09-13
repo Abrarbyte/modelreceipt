@@ -39,7 +39,7 @@ function providers(): Provider[] {
     {
       name: "groq",
       key: process.env.GROQ_API_KEY,
-      model: process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile",
+      model: process.env.GROQ_MODEL ?? "qwen/qwen3.8-27b",
       url: "https://api.groq.com/openai/v1/chat/completions",
       headers: (key) => ({ Authorization: `Bearer ${key}` }),
     },
@@ -125,9 +125,17 @@ export async function answer(prompt: string, variant = "v1"): Promise<ModelAnswe
     }
 
     const body = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
+      choices?: Array<{ message?: { content?: string; reasoning?: string } }>;
     };
-    const text = body.choices?.[0]?.message?.content ?? "";
+    const message = body.choices?.[0]?.message;
+    // Some reasoning models return an empty `content` and put the answer in
+    // `reasoning`. Committing to an empty string would produce a technically
+    // valid receipt for an answer the user never saw, so fall back explicitly
+    // rather than sealing a blank.
+    const text = message?.content?.trim() || message?.reasoning?.trim() || "";
+    if (!text) {
+      throw new Error(`${provider.name} returned an empty completion`);
+    }
 
     return {
       text,

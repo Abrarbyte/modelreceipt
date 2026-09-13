@@ -227,7 +227,7 @@ export default function GatewayPage() {
           {"\n"}
           {"    "}api_key=YOUR_OWN_PROVIDER_KEY,{"\n"});{"\n"}
           {"\n"}resp = client.chat.completions.create({"\n"}
-          {"    "}model=&quot;llama-3.3-70b-versatile&quot;,{"\n"}
+          {"    "}model=&quot;qwen/qwen3.8-27b&quot;,{"\n"}
           {"    "}messages=[{"{"}&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;hello&quot;{"}"}],{"\n"}
           ){"\n"}
           <span className="cmt"># receipt rides along in resp._modelreceipt and the response headers</span>
