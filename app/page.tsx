@@ -320,6 +320,11 @@ export default function GatewayPage() {
             body="Look up a user's whole history by pseudonymous reference — without their identifier ever being stored."
           />
           <Feature
+            href="/why"
+            title="The whole system"
+            body="Architecture diagram, every capability, the assurance ladder, and what comes next — with live numbers from this deployment."
+          />
+          <Feature
             href="/how-it-works"
             title="Architecture & honest limits"
             body="Including what this cannot prove, and why every receipt here is marked simulated."
