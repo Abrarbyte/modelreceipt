@@ -105,7 +105,7 @@ function AuditInner() {
         <div className="panel" style={{ marginTop: 20 }}>
           <div className="stat-row" style={{ marginBottom: 16 }}>
             <div>
-              <div className="stat-num" style={{ color: "var(--accent)" }}>
+              <div className="stat-num" style={{ color: "var(--primary)" }}>
                 {rows.length}
               </div>
               <div className="stat-label">Receipts found</div>
@@ -144,7 +144,7 @@ function AuditInner() {
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.18, delay: Math.min(index * 0.02, 0.3) }}
                     >
-                      <td style={{ color: "var(--accent)" }}>#{row.leaf_index ?? "—"}</td>
+                      <td style={{ color: "var(--primary)" }}>#{row.leaf_index ?? "—"}</td>
                       <td>{row.record_id.slice(0, 16)}…</td>
                       <td>{row.session_id ?? "—"}</td>
                       <td>{row.model ?? "—"}</td>

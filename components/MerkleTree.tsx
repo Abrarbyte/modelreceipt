@@ -146,7 +146,7 @@ export function MerkleTree({
                   y1={py(n)}
                   x2={px(child)}
                   y2={py(child)}
-                  stroke={onRoute ? "var(--accent)" : "var(--line-bright)"}
+                  stroke={onRoute ? "var(--primary)" : "var(--border)"}
                   strokeWidth={onRoute ? 2 : 1}
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 1 }}
@@ -161,19 +161,19 @@ export function MerkleTree({
             const isProofNode = pathSet.has(n);
             const isRoot = n.depth === 0;
             const fill = isHighlightLeaf
-              ? "var(--accent)"
+              ? "var(--primary)"
               : isProofNode
                 ? "var(--warn)"
                 : isRoot
                   ? "var(--pass)"
                   : "var(--bg-raised)";
             const stroke = isHighlightLeaf
-              ? "var(--accent)"
+              ? "var(--primary)"
               : isProofNode
                 ? "var(--warn)"
                 : isRoot
                   ? "var(--pass)"
-                  : "var(--line-bright)";
+                  : "var(--border)";
             return (
               <motion.g
                 key={`n-${index}`}
@@ -197,7 +197,7 @@ export function MerkleTree({
                     y={py(n) + 22}
                     textAnchor="middle"
                     fontSize={9}
-                    fill={isHighlightLeaf ? "var(--accent)" : "var(--text-faint)"}
+                    fill={isHighlightLeaf ? "var(--primary)" : "var(--text-faint)"}
                     fontFamily="var(--mono)"
                   >
                     {n.leaf}
@@ -211,7 +211,7 @@ export function MerkleTree({
 
       <div className="row" style={{ gap: 18, marginTop: 10, flexWrap: "wrap" }}>
         <Legend color="var(--pass)" label="root (signed tree head)" />
-        <Legend color="var(--accent)" label="your leaf" />
+        <Legend color="var(--primary)" label="your leaf" />
         <Legend color="var(--warn)" label={`audit path — ${path.length} hash${path.length === 1 ? "" : "es"}`} />
       </div>
 

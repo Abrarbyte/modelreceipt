@@ -1,57 +1,45 @@
 /*
- * ModelReceipt — theme tokens.
+ * ModelReceipt — design tokens.
  *
- * Three states, following the reference's ThemeModeProvider: an explicit choice
- * stamps data-theme="light" | "dark" on <html>; "system" stamps nothing and
- * prefers-color-scheme decides. Light is the base; dark redefines only tokens.
+ * Exactly the specified palette, nothing invented. Every colour on the site
+ * resolves to one of these. Derived tints (chip backgrounds, focus rings) are
+ * color-mix() of a base token with the card colour, so they stay in the family
+ * in both modes.
  *
- * Colour discipline is unchanged: one accent for interaction, and the three
- * semantic colours (pass / warn / fail) are reserved for verdict state and never
- * used decoratively.
+ * Three theme states: data-theme="light" | "dark" set explicitly, or nothing
+ * and prefers-color-scheme decides.
  */
 
 :root {
   color-scheme: light;
 
-  --bg: #f6f7fb;
-  --bg-deep: #eceef5;
-  --surface: #ffffff;
-  --surface-2: #f2f3f9;
-  --line: #e3e6ef;
-  --line-strong: #c9cfe0;
+  --page: #ffffff;
+  --navbar: #ffffff;
+  --card: #f8fafc;
+  --card-hover: #f1f5f9;
+  --primary: #6d5dfb;
+  --primary-hover: #5b4aef;
+  --text: #18181b;
+  --text-2: #71717a;
+  --border: #e4e4e7;
+  --input: #ffffff;
+  --input-focus: #6d5dfb;
+  --success: #16a34a;
+  --warning: #d97706;
+  --error: #dc2626;
 
-  --text: #0f1424;
-  --text-dim: #4a536a;
-  --text-faint: #7d879d;
+  --on-primary: #ffffff;
 
-  --accent: #4f46e5;
-  --accent-strong: #4338ca;
-  --accent-soft: #eef0ff;
-  --accent-ink: #ffffff;
-
-  --pass: #15803d;
-  --pass-soft: #e6f6ec;
-  --warn: #b45309;
-  --warn-soft: #fef3e2;
-  --fail: #b91c1c;
-  --fail-soft: #fdeaea;
-
-  --shadow-sm: 0 1px 2px rgb(15 20 36 / 6%), 0 1px 3px rgb(15 20 36 / 4%);
-  --shadow-md: 0 6px 20px rgb(15 20 36 / 8%);
-  --shadow-lg: 0 18px 50px rgb(15 20 36 / 14%);
-  --ring: 0 0 0 3px rgb(79 70 229 / 18%);
-
-  --particle: #6366f1;
-  --beam-from: #4f46e5;
-  --beam-to: #a855f7;
+  --shadow-sm: 0 1px 2px rgb(24 24 27 / 5%);
+  --shadow-md: 0 4px 12px rgb(24 24 27 / 8%);
+  --shadow-lg: 0 16px 40px rgb(24 24 27 / 14%);
 
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
   --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
 
-  --radius: 14px;
-  --radius-sm: 9px;
+  --radius: 12px;
+  --radius-sm: 8px;
 
-  /* the reference site's signature curve */
   --ease-66: cubic-bezier(0.66, 0, 0.01, 1);
   --ease-out: cubic-bezier(0.2, 0, 0.2, 1);
 }
@@ -60,88 +48,101 @@
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --bg: #0b0d14;
-    --bg-deep: #07080e;
-    --surface: #12151f;
-    --surface-2: #171b28;
-    --line: #232838;
-    --line-strong: #323950;
+    --page: #09090b;
+    --navbar: #0f0f12;
+    --card: #141417;
+    --card-hover: #1c1c21;
+    --primary: #8b7cff;
+    --primary-hover: #a095ff;
+    --text: #fafafa;
+    --text-2: #a1a1aa;
+    --border: #27272a;
+    --input: #111114;
+    --input-focus: #8b7cff;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --error: #f87171;
 
-    --text: #eef0f7;
-    --text-dim: #a6adc2;
-    --text-faint: #6f7890;
-
-    --accent: #818cf8;
-    --accent-strong: #a5b4fc;
-    --accent-soft: #1c1f3a;
-    --accent-ink: #0b0d14;
-
-    --pass: #4ade80;
-    --pass-soft: #0f2a1c;
-    --warn: #fbbf24;
-    --warn-soft: #2f2410;
-    --fail: #f87171;
-    --fail-soft: #331416;
+    --on-primary: #09090b;
 
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
-    --shadow-md: 0 8px 24px rgb(0 0 0 / 45%);
-    --shadow-lg: 0 20px 60px rgb(0 0 0 / 55%);
-    --ring: 0 0 0 3px rgb(129 140 248 / 25%);
-
-    --particle: #818cf8;
-    --beam-from: #818cf8;
-    --beam-to: #c084fc;
+    --shadow-md: 0 4px 14px rgb(0 0 0 / 45%);
+    --shadow-lg: 0 16px 44px rgb(0 0 0 / 55%);
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #0b0d14;
-  --bg-deep: #07080e;
-  --surface: #12151f;
-  --surface-2: #171b28;
-  --line: #232838;
-  --line-strong: #323950;
+  --page: #09090b;
+  --navbar: #0f0f12;
+  --card: #141417;
+  --card-hover: #1c1c21;
+  --primary: #8b7cff;
+  --primary-hover: #a095ff;
+  --text: #fafafa;
+  --text-2: #a1a1aa;
+  --border: #27272a;
+  --input: #111114;
+  --input-focus: #8b7cff;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --error: #f87171;
 
-  --text: #eef0f7;
-  --text-dim: #a6adc2;
-  --text-faint: #6f7890;
-
-  --accent: #818cf8;
-  --accent-strong: #a5b4fc;
-  --accent-soft: #1c1f3a;
-  --accent-ink: #0b0d14;
-
-  --pass: #4ade80;
-  --pass-soft: #0f2a1c;
-  --warn: #fbbf24;
-  --warn-soft: #2f2410;
-  --fail: #f87171;
-  --fail-soft: #331416;
+  --on-primary: #09090b;
 
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
-  --shadow-md: 0 8px 24px rgb(0 0 0 / 45%);
-  --shadow-lg: 0 20px 60px rgb(0 0 0 / 55%);
-  --ring: 0 0 0 3px rgb(129 140 248 / 25%);
-
-  --particle: #818cf8;
-  --beam-from: #818cf8;
-  --beam-to: #c084fc;
+  --shadow-md: 0 4px 14px rgb(0 0 0 / 45%);
+  --shadow-lg: 0 16px 44px rgb(0 0 0 / 55%);
 }
 
-/* Legacy aliases so every existing component keeps resolving. */
+/* Derived tints — always a mix of a base token with the card colour. */
 :root {
-  --bg-raised: var(--surface);
-  --bg-sunken: var(--surface-2);
-  --line-bright: var(--line-strong);
-  --violet: var(--accent);
-  --violet-bright: var(--accent-strong);
-  --magenta: var(--beam-to);
-  --purple-deep: var(--accent-strong);
-  --accent-dim: var(--accent-soft);
-  --pass-dim: var(--pass-soft);
-  --warn-dim: var(--warn-soft);
-  --fail-dim: var(--fail-soft);
-  --glow-violet: var(--shadow-md);
+  --primary-soft: color-mix(in srgb, var(--primary) 12%, var(--card));
+  --primary-ring: color-mix(in srgb, var(--input-focus) 30%, transparent);
+  --success-soft: color-mix(in srgb, var(--success) 12%, var(--card));
+  --warning-soft: color-mix(in srgb, var(--warning) 14%, var(--card));
+  --error-soft: color-mix(in srgb, var(--error) 12%, var(--card));
+  --text-3: color-mix(in srgb, var(--text-2) 70%, var(--card));
+}
+
+/*
+ * Aliases. Components were written against an earlier token set; mapping the
+ * old names onto the new palette re-skins everything from this one file.
+ */
+:root {
+  --bg: var(--page);
+  --bg-deep: var(--page);
+  --surface: var(--card);
+  --surface-2: var(--card-hover);
+  --bg-raised: var(--card);
+  --bg-sunken: var(--card-hover);
+  --line: var(--border);
+  --line-strong: var(--border);
+  --line-bright: var(--border);
+  --text-dim: var(--text-2);
+  --text-faint: var(--text-3);
+  --accent: var(--primary);
+  --accent-strong: var(--primary-hover);
+  --accent-soft: var(--primary-soft);
+  --accent-ink: var(--on-primary);
+  --accent-dim: var(--primary-soft);
+  --violet: var(--primary);
+  --violet-bright: var(--primary-hover);
+  --magenta: var(--primary);
+  --purple-deep: var(--primary-hover);
+  --beam-from: var(--primary);
+  --beam-to: var(--primary-hover);
+  --pass: var(--success);
+  --pass-soft: var(--success-soft);
+  --pass-dim: var(--success-soft);
+  --warn: var(--warning);
+  --warn-soft: var(--warning-soft);
+  --warn-dim: var(--warning-soft);
+  --fail: var(--error);
+  --fail-soft: var(--error-soft);
+  --fail-dim: var(--error-soft);
+  --ring: 0 0 0 3px var(--primary-ring);
+  --glow-violet: none;
+  --particle: var(--primary);
 }

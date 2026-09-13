@@ -12,25 +12,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ThemeProvider, ThemeToggle, useTheme } from "@/components/Theme";
+import { ThemeProvider, ThemeToggle } from "@/components/Theme";
 import { Tour, useTour } from "@/components/Tour";
-import { Particles } from "@/components/magicui/particles";
-
-function Field() {
-  const { resolved } = useTheme();
-  return (
-    <Particles
-      key={resolved}
-      className="pointer-events-none fixed inset-0 -z-10"
-      quantity={resolved === "dark" ? 140 : 90}
-      ease={60}
-      color={resolved === "dark" ? "#818cf8" : "#6366f1"}
-      size={resolved === "dark" ? 0.9 : 0.7}
-      staticity={34}
-      refresh={false}
-    />
-  );
-}
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   const path = usePathname();
@@ -73,7 +56,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   const tour = useTour();
   return (
     <>
-      <Field />
       <Header onTour={() => tour.setOpen(true)} />
       <main>{children}</main>
       <footer className="site-footer">

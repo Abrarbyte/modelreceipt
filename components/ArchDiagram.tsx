@@ -26,18 +26,18 @@ export function ArchDiagram() {
       >
         <defs>
           <linearGradient id="wire" x1="0" x2="1">
-            <stop offset="0%" stopColor="var(--beam-from)" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="var(--beam-to)" stopOpacity="0.8" />
+            <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.8" />
           </linearGradient>
           <linearGradient id="wire2" x1="0" x2="1">
-            <stop offset="0%" stopColor="var(--beam-to)" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="var(--accent-strong)" stopOpacity="0.8" />
+            <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="var(--primary-hover)" stopOpacity="0.8" />
           </linearGradient>
           <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M0,0 L10,5 L0,10 z" fill="var(--beam-from)" />
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--primary)" />
           </marker>
           <marker id="arrowMag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M0,0 L10,5 L0,10 z" fill="var(--beam-to)" />
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--primary)" />
           </marker>
         </defs>
 
@@ -49,11 +49,11 @@ export function ArchDiagram() {
         {/* the privacy boundary */}
         <motion.line
           x1={336} y1={40} x2={336} y2={410}
-          stroke="var(--beam-to)" strokeWidth={1.5} strokeDasharray="5 6" opacity={0.6}
+          stroke="var(--primary)" strokeWidth={1.5} strokeDasharray="5 6" opacity={0.6}
           initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
           transition={{ duration: 0.7, ease: EASE }}
         />
-        <text x={340} y={404} fill="var(--beam-to)" fontSize={9.5} fontFamily="var(--mono)">
+        <text x={340} y={404} fill="var(--primary)" fontSize={9.5} fontFamily="var(--mono)">
           plaintext never crosses this line →
         </text>
 
@@ -108,7 +108,7 @@ export function ArchDiagram() {
           initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
           transition={{ duration: 0.7, delay: 0.55, ease: EASE }}
         />
-        <text x={620} y={128} fill="var(--beam-to)" fontSize={10} fontFamily="var(--mono)">
+        <text x={620} y={128} fill="var(--primary)" fontSize={10} fontFamily="var(--mono)">
           receipt (~15 KB)
         </text>
 
@@ -155,9 +155,9 @@ function Box({
   delay?: number;
 }) {
   const colours = {
-    cyan: "var(--beam-from)",
-    magenta: "var(--beam-to)",
-    violet: "var(--accent-strong)",
+    cyan: "var(--primary)",
+    magenta: "var(--primary)",
+    violet: "var(--primary-hover)",
     pass: "var(--pass)",
   } as const;
   const colour = colours[tone];
@@ -169,7 +169,7 @@ function Box({
     >
       <rect
         x={x} y={y} width={w} height={h} rx={8}
-        fill="rgba(8,6,15,0.8)" stroke={colour} strokeOpacity={0.45} strokeWidth={1}
+        fill="var(--card)" stroke={colour} strokeOpacity={0.45} strokeWidth={1}
       />
       <text x={x + 12} y={y + 19} fill={colour} fontSize={12} fontWeight={650} fontFamily="var(--mono)">
         {title}

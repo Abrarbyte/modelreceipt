@@ -70,7 +70,7 @@ const ACTION_COLOUR: Record<DrivingDecision["action"], string> = {
   BRAKE_HARD: "var(--fail)",
   STEER_AVOID: "var(--warn)",
   HAND_OVER: "var(--warn)",
-  YIELD_TO_DRIVER: "var(--beam-to)",
+  YIELD_TO_DRIVER: "var(--primary)",
 };
 
 export function DriveSim({
@@ -378,7 +378,7 @@ export function DriveSim({
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                style={{ borderColor: e.eventType === "vehicle.collision" ? "var(--fail)" : e.driverOverride ? "var(--magenta)" : "var(--line)" }}
+                style={{ borderColor: e.eventType === "vehicle.collision" ? "var(--fail)" : e.driverOverride ? "var(--primary)" : "var(--line)" }}
               >
                 <div className="row" style={{ justifyContent: "space-between", gap: 8 }}>
                   <span className="mono" style={{ color: ACTION_COLOUR[e.action], fontSize: 11.5, fontWeight: 800 }}>
@@ -389,7 +389,7 @@ export function DriveSim({
                   </span>
                 </div>
                 <div className="note" style={{ fontSize: 11.5, marginTop: 2 }}>{e.reason}</div>
-                <div className="mono" style={{ fontSize: 10, color: e.pending ? "var(--warn)" : "var(--violet)", marginTop: 4 }}>
+                <div className="mono" style={{ fontSize: 10, color: e.pending ? "var(--warn)" : "var(--primary)", marginTop: 4 }}>
                   {e.pending ? "sealing…" : `leaf #${e.leafIndex} · ${e.recordId.slice(0, 10)}… · ${e.inputCommit.slice(10, 18)}…`}
                 </div>
               </motion.div>
@@ -409,17 +409,17 @@ function draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, w: World
   const laneW = W / LANES;
 
   // road
-  ctx.fillStyle = "#07050d";
+  ctx.fillStyle = "#0f0f12";
   ctx.fillRect(0, 0, W, H);
 
   // fog wash
   if (w.weather === "fog") {
-    ctx.fillStyle = "rgba(180, 170, 210, 0.16)";
+    ctx.fillStyle = "rgba(161, 161, 170, 0.18)";
     ctx.fillRect(0, 0, W, H);
   }
 
   // lane lines
-  ctx.strokeStyle = "rgba(139, 92, 246, 0.35)";
+  ctx.strokeStyle = "rgba(139, 124, 255, 0.35)";
   ctx.lineWidth = 2;
   ctx.setLineDash([22, 38]);
   ctx.lineDashOffset = -w.scrollOffset;
@@ -432,7 +432,7 @@ function draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, w: World
   ctx.setLineDash([]);
 
   // edges
-  ctx.strokeStyle = "rgba(192, 38, 211, 0.5)";
+  ctx.strokeStyle = "rgba(139, 124, 255, 0.55)";
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(2, 0); ctx.lineTo(2, H);
@@ -454,19 +454,19 @@ function draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, w: World
       ctx.fillStyle = "#fbbf24";
       for (let s = 0; s < 4; s++) ctx.fillRect(x - laneW * 0.42 + s * (laneW * 0.84 / 4), y - 8, laneW * 0.84 / 8, 16);
     } else {
-      drawCar(ctx, x, y, "#a6adc2", "#6f7890");
+      drawCar(ctx, x, y, "#a1a1aa", "#71717a");
     }
   }
 
   // ego car
   const ex = w.lane * laneW + laneW / 2;
-  drawCar(ctx, ex, egoY, w.crashed ? "#f87171" : "#818cf8", w.crashed ? "#f87171" : "#c084fc", true);
+  drawCar(ctx, ex, egoY, w.crashed ? "#f87171" : "#8b7cff", w.crashed ? "#f87171" : "#a095ff", true);
 
   // sensor cone
   if (!w.crashed) {
     const grad = ctx.createLinearGradient(0, egoY, 0, egoY - 260);
-    grad.addColorStop(0, "rgba(139, 92, 246, 0.22)");
-    grad.addColorStop(1, "rgba(139, 92, 246, 0)");
+    grad.addColorStop(0, "rgba(139, 124, 255, 0.22)");
+    grad.addColorStop(1, "rgba(139, 124, 255, 0)");
     ctx.fillStyle = grad;
     ctx.beginPath();
     ctx.moveTo(ex - 14, egoY - 22);
@@ -478,20 +478,15 @@ function draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, w: World
   }
 
   if (w.crashed) {
-    ctx.fillStyle = "rgba(255, 77, 109, 0.18)";
+    ctx.fillStyle = "rgba(248, 113, 113, 0.18)";
     ctx.fillRect(0, 0, W, H);
   }
 }
 
 function drawCar(ctx: CanvasRenderingContext2D, x: number, y: number, body: string, trim: string, glow = false) {
-  if (glow) {
-    ctx.shadowColor = body;
-    ctx.shadowBlur = 22;
-  }
   ctx.fillStyle = body;
   roundRect(ctx, x - 16, y - 26, 32, 52, 7);
   ctx.fill();
-  ctx.shadowBlur = 0;
   ctx.fillStyle = trim;
   ctx.fillRect(x - 12, y - 14, 24, 10);
   ctx.fillRect(x - 12, y + 6, 24, 8);

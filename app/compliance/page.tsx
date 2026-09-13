@@ -84,7 +84,7 @@ export default function CompliancePage() {
       <div className="panel">
         <div className="stat-row">
           <div>
-            <div className="stat-num" style={{ color: "var(--accent)" }}>
+            <div className="stat-num" style={{ color: "var(--primary)" }}>
               {busy ? "—" : `${covered}/${totalObligations}`}
             </div>
             <div className="stat-label">Obligations covered</div>

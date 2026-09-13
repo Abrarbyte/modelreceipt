@@ -6,7 +6,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { SCENARIOS, type Scenario } from "@/lib/scenarios";
 import { assess, type Assurance } from "@/lib/assurance";
 import { VerdictPanel, type VerdictShape } from "@/components/Verdict";
-import { BorderBeam } from "@/components/magicui/border-beam";
 
 const EASE = [0.2, 0, 0.2, 1] as const;
 
@@ -125,7 +124,7 @@ export default function DecisionsPage() {
               {reveal ? "Redact sensitive" : "Reveal sensitive"}
             </button>
           </div>
-          <p className="note" style={{ marginBottom: 12, color: "var(--violet-bright)" }}>
+          <p className="note" style={{ marginBottom: 12, color: "var(--primary)" }}>
             {active.citation}
           </p>
 
@@ -184,8 +183,7 @@ export default function DecisionsPage() {
         </div>
 
         {/* ---------- decision + receipt ---------- */}
-        <div className="panel" style={{ position: "relative", overflow: "hidden" }}>
-          {verdict?.ok && <BorderBeam size={220} duration={9} colorFrom="var(--beam-from)" colorTo="var(--beam-to)" />}
+        <div className="panel">
           <h2>Decision</h2>
           {!result && !busy && (
             <p className="note">

@@ -73,7 +73,7 @@ export default function LogPage() {
       <div className="panel">
         <div className="stat-row">
           <div>
-            <div className="stat-num" style={{ color: "var(--accent)" }}>
+            <div className="stat-num" style={{ color: "var(--primary)" }}>
               {status?.size ?? "—"}
             </div>
             <div className="stat-label">Leaves in tree</div>
@@ -267,7 +267,7 @@ export default function LogPage() {
                     transition={{ duration: 0.18, delay: Math.min(index * 0.02, 0.3) }}
                   >
                     <td
-                      style={{ color: "var(--accent)", cursor: "pointer" }}
+                      style={{ color: "var(--primary)", cursor: "pointer" }}
                       onClick={() => setSelectedLeaf(row.leaf_index)}
                       title="Show this leaf in the tree above"
                     >

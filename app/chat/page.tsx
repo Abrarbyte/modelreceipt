@@ -7,8 +7,6 @@ import { assess, type Assurance } from "@/lib/assurance";
 import { AssuranceLadder, VerdictPanel, type VerdictShape } from "@/components/Verdict";
 import { Pipeline, type PipelineData } from "@/components/Pipeline";
 import { Markdown } from "@/components/Markdown";
-import { AuroraText } from "@/components/magicui/aurora-text";
-import { BorderBeam } from "@/components/magicui/border-beam";
 
 interface InferResponse {
   executionId?: string;
@@ -138,9 +136,7 @@ export default function GatewayPage() {
         </div>
         <h1 style={{ marginBottom: 10 }}>
           Every answer comes with a{" "}
-          <AuroraText colors={["#4f46e5", "#a855f7", "#6366f1", "#818cf8"]} speed={1.2}>
-            receipt
-          </AuroraText>
+          <span className="glow">receipt</span>
           .
         </h1>
         <p className="lede" style={{ margin: "0 auto" }}>
@@ -197,18 +193,7 @@ export default function GatewayPage() {
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.22, ease: EASE }}
-                style={{ position: "relative", overflow: "hidden" }}
               >
-                {/* The beam marks a reply that carries a verified receipt —
-                    decoration earning its place by meaning something. */}
-                {turn.verdict?.ok && (
-                  <BorderBeam
-                    size={190}
-                    duration={9}
-                    colorFrom="var(--beam-from)"
-                    colorTo="var(--beam-to)"
-                  />
-                )}
                 <Markdown>{turn.answer}</Markdown>
 
                 <div className="receipt-strip">

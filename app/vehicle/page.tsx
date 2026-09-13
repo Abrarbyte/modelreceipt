@@ -81,7 +81,7 @@ export default function VehiclePage() {
         {trip.tripId && sealed.length > 0 && (
           <motion.div
             className="panel"
-            style={{ marginTop: 20, borderColor: trip.crashed ? "var(--fail)" : "var(--violet)" }}
+            style={{ marginTop: 20, borderColor: trip.crashed ? "var(--fail)" : "var(--primary)" }}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: EASE }}
@@ -137,8 +137,8 @@ export default function VehiclePage() {
                     <tbody>
                       {rows.map((r) => (
                         <tr key={r.record_id}>
-                          <td style={{ color: "var(--violet)" }}>#{r.leaf_index ?? "—"}</td>
-                          <td style={{ color: r.event_type === "vehicle.collision" ? "var(--fail)" : r.event_type === "vehicle.driver_override" ? "var(--magenta)" : undefined }}>
+                          <td style={{ color: "var(--primary)" }}>#{r.leaf_index ?? "—"}</td>
+                          <td style={{ color: r.event_type === "vehicle.collision" ? "var(--fail)" : r.event_type === "vehicle.driver_override" ? "var(--primary)" : undefined }}>
                             {r.event_type}
                           </td>
                           <td>{r.record_id.slice(0, 14)}…</td>

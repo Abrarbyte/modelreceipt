@@ -172,11 +172,8 @@ export function FlowCanvas({ liveRecordId }: { liveRecordId?: string | null }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.08, ease: [0.2, 0, 0.2, 1] }}
               style={{
-                borderColor: flare > 0.05 ? TONE[stage.tone] : "var(--line)",
-                boxShadow:
-                  flare > 0.05
-                    ? `0 0 ${10 + flare * 26}px rgb(34 224 255 / ${8 + flare * 26}%)`
-                    : "none",
+                borderColor: flare > 0.05 ? TONE[stage.tone] : "var(--border)",
+                background: flare > 0.05 ? "var(--primary-soft)" : "var(--page)",
               }}
             >
               <span
@@ -198,7 +195,7 @@ export function FlowCanvas({ liveRecordId }: { liveRecordId?: string | null }) {
 
       <div className="flow-caption">
         <span className="mono">
-          after <span style={{ color: "var(--magenta)" }}>COMMIT</span>, the plaintext no longer
+          after <span style={{ color: "var(--primary)" }}>COMMIT</span>, the plaintext no longer
           exists in this system
         </span>
         <span className="mono flow-counter">{tick % 2 === 0 ? "▰" : "▱"} live</span>
