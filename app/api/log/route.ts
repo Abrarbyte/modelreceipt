@@ -19,6 +19,7 @@ import {
 } from "cool-nwc";
 import { DurableLog, isDurable, logSigningKey } from "@/lib/durable-log";
 import { ensureSchema, sql } from "@/lib/db";
+import { activeProvider } from "@/lib/model";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -67,6 +68,10 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     durable: isDurable(),
+    // Which upstream will serve, if any. Names only - never a key, never a
+    // fragment of one. Deployment config is the first thing to go wrong and the
+    // last thing anyone can see, so it is worth making visible.
+    provider: activeProvider(),
     size: log.size,
     sth,
     // Publish the log's public key so anyone can check the STH signature
