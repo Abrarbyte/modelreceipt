@@ -123,3 +123,75 @@ export function evidenceRecord(receipt: ReceiptV2) {
   }
   return record;
 }
+
+/**
+ * Record a governed change to the gateway itself.
+ *
+ * This is the other half of the argument. An execution receipt answers "which
+ * model served this request?"; a change record answers "who moved the model,
+ * from what, to what, and who approved it?". A silent model swap - the problem
+ * this whole product exists for - is precisely an ungoverned change, so the
+ * fix is not only to witness inferences but to witness the changes behind them.
+ *
+ * `cool.change()` seals the before/after values as salted commitments, exactly
+ * like payloads, so the change trail carries no plaintext config either.
+ */
+export async function sealChange(request: {
+  kind: "prompt" | "model" | "params" | "policy" | "dataset" | "agent-permission" | "tool";
+  ref: string;
+  before?: string;
+  after: string;
+  environment?: string;
+  actorId: string;
+  actorMethod?: string;
+  approvers: readonly string[];
+  decision?: "auto-approved" | "approved" | "rejected" | "waived";
+  risk?: number;
+  labels?: readonly string[];
+}): Promise<SealResult> {
+  return withLog(async (log: DurableLog) => {
+    const cool = await CoolTee.connect({
+      app: { name: APP_NAME, imageDigest: imageDigest() },
+      logId: process.env.MODELRECEIPT_LOG_ID ?? "modelreceipt-log-v1",
+      log,
+    });
+
+    try {
+      const receipt = await cool.change({
+        kind: request.kind,
+        ref: request.ref,
+        before: request.before,
+        after: request.after,
+        environment: request.environment ?? "production",
+        actor: { id: request.actorId, method: request.actorMethod ?? "session" },
+        // A named approver list is what turns a log line into an oversight
+        // record: EU AI Act Art. 14 asks for oversight traceable to a person,
+        // and SOC 2 CC7.2 for a reviewed change. Both are satisfied by this
+        // block being inside the signature, not beside it.
+        approval: {
+          policy_id: "modelreceipt/model-change-v1",
+          decision: request.decision ?? "approved",
+          approvers: request.approvers,
+        },
+        risk: request.risk,
+        labels: request.labels,
+      });
+
+      const published: ReceiptV2 = {
+        ...receipt,
+        key_directory: {
+          ...receipt.key_directory,
+          ...directoryFromKeypair(logSigningKey()),
+        },
+      };
+
+      return {
+        receipt: published,
+        treeSize: published.sth?.tree_size ?? log.size,
+        leafIndex: published.inclusion?.leaf_index ?? null,
+      };
+    } finally {
+      await cool.close();
+    }
+  });
+}
