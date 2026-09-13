@@ -34,26 +34,45 @@ interface Provider {
   headers(key: string): Record<string, string>;
 }
 
+/**
+ * Read an environment variable, treating blank as unset.
+ *
+ * `??` only falls back on undefined, so an env var that exists but is empty -
+ * easily created by a mis-paste in a hosting dashboard - silently overrides the
+ * default with "". That produced a live deployment advertising a model id of
+ * "", which is precisely the kind of quiet config drift this product exists to
+ * make visible.
+ */
+function env(name: string, fallback: string): string {
+  const value = process.env[name];
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
+}
+
+function providerKey(name: string): string | undefined {
+  const value = process.env[name];
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
 function providers(): Provider[] {
   return [
     {
       name: "groq",
-      key: process.env.GROQ_API_KEY,
-      model: process.env.GROQ_MODEL ?? "qwen/qwen3.8-27b",
+      key: providerKey("GROQ_API_KEY"),
+      model: env("GROQ_MODEL", "qwen/qwen3.8-27b"),
       url: "https://api.groq.com/openai/v1/chat/completions",
       headers: (key) => ({ Authorization: `Bearer ${key}` }),
     },
     {
       name: "openai",
-      key: process.env.OPENAI_API_KEY,
-      model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+      key: providerKey("OPENAI_API_KEY"),
+      model: env("OPENAI_MODEL", "gpt-4o-mini"),
       url: "https://api.openai.com/v1/chat/completions",
       headers: (key) => ({ Authorization: `Bearer ${key}` }),
     },
     {
       name: "openrouter",
-      key: process.env.OPENROUTER_API_KEY,
-      model: process.env.OPENROUTER_MODEL ?? "meta-llama/llama-3.3-70b-instruct:free",
+      key: providerKey("OPENROUTER_API_KEY"),
+      model: env("OPENROUTER_MODEL", "meta-llama/llama-3.3-70b-instruct:free"),
       url: "https://openrouter.ai/api/v1/chat/completions",
       headers: (key) => ({ Authorization: `Bearer ${key}` }),
     },
